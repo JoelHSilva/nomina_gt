@@ -1,15 +1,13 @@
 // controllers/prestamos.controller.js
 const db = require('../models');
 // Importar el servicio de Préstamos
-const PrestamosService = require('../services/prestamos.service');
 // Importar el servicio de Nominas si la función applyPayrollPayments está aquí
 // const NominasService = require('../services/nominas.service'); // Si applyPayrollPayments vive aquí
 
 // Instanciar el servicio
-const prestamosService = new PrestamosService();
 // Si applyPayrollPayments vive aquí y usa NominasService
 // const nominasService = new NominasService();
-
+const { prestamosService } = require('../services'); // Usa la instancia compartida
 
 // --- Métodos CRUD básicos (pueden seguir interactuando con el modelo directamente si la lógica es simple) ---
 

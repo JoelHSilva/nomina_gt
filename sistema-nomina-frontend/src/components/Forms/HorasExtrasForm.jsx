@@ -1,4 +1,3 @@
-// src/components/Forms/HorasExtrasForm.jsx
 import React, { useState, useEffect } from 'react';
 import Input from '../Common/Input.jsx';
 import Button from '../Common/Button.jsx';
@@ -7,32 +6,32 @@ import api from '../../api/api.jsx';
 import { ENDPOINTS } from '../../api/endpoints.jsx';
 
 function HorasExtrasForm({ initialData = {}, onSubmit }) {
+  // Estado inicial con multiplicador fijo en 1.5
   const [formData, setFormData] = useState({
-    id_empleado: '',
+    id_empleado: null,
     fecha: '',
-    horas: '', // <-- Usar 'horas'
-    multiplicador: '1.5', // Valor por defecto (si tu backend lo maneja)
-    motivo: '', // <-- Campo motivo
-    estado: 'Solicitada', // <-- Usar 'estado' (default Solicitada?)
-    activo: true, // <-- Añadir campo activo, default TRUE
-    // aprobado_por, id_detalle_nomina, fecha_creacion no editables aquí
+    horas: null,
+    multiplicador: 1.5, // Valor fijo no editable
+    motivo: '',
+    estado: 'Pendiente',
+    activo: true
   });
 
   const [empleados, setEmpleados] = useState([]);
   const [loadingRelaciones, setLoadingRelaciones] = useState(true);
   const [errorRelaciones, setErrorRelaciones] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
 
-
-  // Cargar la lista de Empleados al montar el componente
+  // Cargar empleados
   useEffect(() => {
     const fetchEmpleados = async () => {
       try {
         setLoadingRelaciones(true);
-        const data = await api.getAll('EMPLEADOS'); // Usar la clave string
+        const data = await api.getAll('EMPLEADOS');
         setEmpleados(data);
       } catch (err) {
-        setErrorRelaciones('Error al cargar la lista de empleados.');
-        console.error('Error fetching empleados:', err);
+        setErrorRelaciones('Error al cargar la lista de empleados. Por favor intente más tarde.');
+        console.error('Error:', err.response?.data || err.message);
       } finally {
         setLoadingRelaciones(false);
       }
@@ -40,184 +39,236 @@ function HorasExtrasForm({ initialData = {}, onSubmit }) {
     fetchEmpleados();
   }, []);
 
-  // Actualiza el estado del formulario si cambia initialData (para el modo edición)
+  // Cargar datos iniciales para edición (manteniendo 1.5 siempre)
   useEffect(() => {
-    // Usar initialData.id_hora_extra para verificar modo edición
-    if (initialData && initialData.id_hora_extra) {
+    if (initialData?.id_hora_extra) {
       setFormData({
-        id_empleado: initialData.id_empleado || '',
-        fecha: initialData.fecha ? new Date(initialData.fecha).toISOString().split('T')[0] : '',
-        horas: initialData.horas || '', // <-- Usar 'horas'
-        multiplicador: initialData.multiplicador || '1.5', // Cargar si existe
-        motivo: initialData.motivo || '', // <-- Usar 'motivo'
-        estado: initialData.estado || 'Solicitada', // <-- Usar 'estado'
-        activo: initialData.activo === undefined ? true : initialData.activo, // <-- Cargar activo, default true si undefined
-         // id_detalle_nomina NO se carga aquí, es gestionado por backend
+        id_empleado: initialData.id_empleado || null,
+        fecha: initialData.fecha ? formatDateForInput(initialData.fecha) : '',
+        horas: initialData.horas || null,
+        multiplicador: 1.5, // Siempre 1.5 aunque haya otro valor en initialData
+        motivo: initialData.motivo || '',
+        estado: initialData.estado || 'Pendiente',
+        activo: initialData.activo !== false
       });
-    } else {
-         // Si no hay initialData, resetear el formulario para creación
-         setFormData({
-            id_empleado: '',
-            fecha: '',
-            horas: '',
-            multiplicador: '1.5',
-            motivo: '',
-            estado: 'Solicitada',
-            activo: true, // Default true para creación
-         });
-     }
+    }
   }, [initialData]);
 
+  // Formatear fecha para input type="date"
+  const formatDateForInput = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
+  };
 
+  // Manejar cambios en los inputs (sin manejar cambios para multiplicador)
   const handleInputChange = (e) => {
     const { id, value, type, checked } = e.target;
-     // Para campos numéricos, permitir cadena vacía, para otros usar valor directo
-     let newValue = value;
-     if (type === 'number' && value !== '') {
-         newValue = parseFloat(value);
-         // Opcional: si parseFloat da NaN, quizás mantener el string original o ''
-         if (isNaN(newValue)) newValue = value; // Mantener el input del usuario si no es un número válido aún
-     }
+    
+    // No permitir cambios en el multiplicador
+    if (id === 'multiplicador') return;
+    
+    let newValue;
+    if (type === 'number') {
+      newValue = value === '' ? null : parseFloat(value);
+    } else if (type === 'checkbox') {
+      newValue = checked;
+    } else {
+      newValue = value;
+    }
 
+    setFormData(prev => ({
+      ...prev,
+      [id]: newValue
+    }));
 
-    setFormData({
-      ...formData,
-      [id]: type === 'checkbox' ? checked : newValue, // Checkbox usa 'checked', otros usan newValue
-    });
+    // Limpiar error al cambiar
+    if (formErrors[id]) {
+      setFormErrors(prev => ({ ...prev, [id]: '' }));
+    }
   };
 
-   // Manejar inputs de tipo select
-   const handleSelectChange = (e) => {
-       const { id, value } = e.target;
-       setFormData({
-           ...formData,
-           [id]: value // El valor será el ID numérico o la cadena
-       });
-   };
+  // Validar formulario (sin validar multiplicador)
+  const validateForm = () => {
+    const errors = {};
+    let isValid = true;
 
+    if (!formData.id_empleado) {
+      errors.id_empleado = 'Seleccione un empleado';
+      isValid = false;
+    }
 
+    if (!formData.fecha) {
+      errors.fecha = 'La fecha es requerida';
+      isValid = false;
+    }
+
+    if (formData.horas === null || formData.horas <= 0) {
+      errors.horas = 'Ingrese horas válidas (> 0)';
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
+  };
+
+  // Enviar formulario (siempre con multiplicador 1.5)
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Transformar datos si es necesario
-    const dataToSend = {
-        ...formData,
-        // Asegurar que id_empleado es número
-        id_empleado: parseInt(formData.id_empleado, 10),
-        // Asegurar que campos numéricos son números (convertir strings vacíos a null si backend lo prefiere, o a 0)
-        horas: formData.horas === '' ? null : parseFloat(formData.horas), // <-- Usar 'horas'
-        multiplicador: formData.multiplicador === '' ? null : parseFloat(formData.multiplicador), // Incluir si es editable
-         // Fecha ya debería estar en formato-MM-DD por input type="date"
-         // motivo puede ser null si es opcional
-        motivo: formData.motivo || null, // <-- Usar 'motivo'
-         // estado ya es string del select
-         // activo ya es booleano
+
+    if (!validateForm()) return;
+
+    // Preparar datos para el backend (multiplicador siempre 1.5)
+    const payload = {
+      id_empleado: Number(formData.id_empleado),
+      fecha: new Date(formData.fecha).toISOString(),
+      horas: Number(formData.horas),
+      multiplicador: 1.5, // Valor fijo
+      motivo: formData.motivo || null,
+      estado: formData.estado,
+      activo: formData.activo
     };
 
-     // Validaciones adicionales (ej: horas > 0, multiplicador > 0 si no son null)
-     if (dataToSend.horas !== null && dataToSend.horas <= 0) {
-         alert('La cantidad de horas debe ser mayor a 0 si se especifica.');
-         return;
-     }
-      if (dataToSend.multiplicador !== null && dataToSend.multiplicador <= 0) {
-         alert('El multiplicador debe ser mayor a 0 si se especifica.');
-         return;
-     }
-
-    onSubmit(dataToSend);
+    onSubmit(payload);
   };
 
+  const isProcessed = !!initialData.id_detalle_nomina;
+
   if (loadingRelaciones) {
-      return <LoadingSpinner />;
+    return <LoadingSpinner />;
   }
 
-   if (errorRelaciones) {
-      return <div style={{ color: 'red' }}>{errorRelaciones}</div>;
-   }
-
-    // Determinar si el formulario debe estar deshabilitado (ej: si ya fue procesado en nómina)
-    const isProcessed = !!initialData.id_detalle_nomina;
-
+  if (errorRelaciones) {
+    return <div className="error-message">{errorRelaciones}</div>;
+  }
 
   return (
-    <form onSubmit={handleSubmit}>
-        {/* Usar id_hora_extra para verificar modo edición */}
-        <h3>{initialData.id_hora_extra ? 'Editar' : 'Registrar'} Horas Extra</h3>
+    <form onSubmit={handleSubmit} className="app-form">
+      <h3>{initialData?.id_hora_extra ? 'Editar' : 'Registrar'} Horas Extras</h3>
 
-        {/* Selección de Empleado - Deshabilitado si ya está procesado en nómina */}
-         <div className="app-input-container">
-             <label htmlFor="id_empleado" className="app-input-label">Empleado:</label>
-             <select
-                 id="id_empleado"
-                 value={formData.id_empleado}
-                 onChange={handleSelectChange}
-                 required
-                 className="app-input-field"
-                 disabled={isProcessed} // Deshabilitar si ya está procesado
-             >
-                  <option value="">-- Seleccione un Empleado --</option>
-                 {empleados.map(empleado => (
-                     <option key={empleado.id_empleado} value={empleado.id_empleado}>
-                         {empleado.nombre} {empleado.apellido} ({empleado.codigo_empleado})
-                     </option>
-                 ))}
-             </select>
-         </div>
+      {/* Empleado */}
+      <div className="form-group">
+        <label htmlFor="id_empleado">Empleado *</label>
+        <select
+          id="id_empleado"
+          value={formData.id_empleado || ''}
+          onChange={handleInputChange}
+          className={`form-control ${formErrors.id_empleado ? 'is-invalid' : ''}`}
+          disabled={isProcessed}
+        >
+          <option value="">-- Seleccione --</option>
+          {empleados.map(empleado => (
+            <option key={empleado.id_empleado} value={empleado.id_empleado}>
+              {empleado.nombre} {empleado.apellido} ({empleado.codigo_empleado})
+            </option>
+          ))}
+        </select>
+        {formErrors.id_empleado && <div className="invalid-feedback">{formErrors.id_empleado}</div>}
+      </div>
 
-        {/* Campo Fecha - Deshabilitado si ya está procesado */}
-        <Input label="Fecha:" id="fecha" type="date" value={formData.fecha} onChange={handleInputChange} required disabled={isProcessed} />
+      {/* Fecha */}
+      <Input
+        label="Fecha *"
+        id="fecha"
+        type="date"
+        value={formData.fecha}
+        onChange={handleInputChange}
+        error={formErrors.fecha}
+        disabled={isProcessed}
+      />
 
-        {/* Campos numéricos */}
-        <Input label="Cantidad de Horas:" id="horas" type="number" value={formData.horas} onChange={handleInputChange} required step="0.5" min="0" disabled={isProcessed} /> {/* <-- Usar 'horas' como ID y clave */}
-        <Input label="Multiplicador:" id="multiplicador" type="number" value={formData.multiplicador} onChange={handleInputChange} required step="0.1" min="0" disabled={isProcessed} />
+      {/* Horas */}
+      <Input
+        label="Horas *"
+        id="horas"
+        type="number"
+        value={formData.horas ?? ''}
+        onChange={handleInputChange}
+        step="0.5"
+        min="0"
+        error={formErrors.horas}
+        disabled={isProcessed}
+      />
 
-        {/* Campo Motivo */}
-         <Input label="Motivo:" id="motivo" value={formData.motivo} onChange={handleInputChange} type="textarea" disabled={isProcessed} /> {/* <-- Añadir campo motivo */}
+      {/* Multiplicador (solo lectura) */}
+      <div className="form-group">
+        <label htmlFor="multiplicador">Multiplicador</label>
+        <input
+          id="multiplicador"
+          type="number"
+          className="form-control"
+          value={formData.multiplicador}
+          readOnly
+          step="0.1"
+          min="0.1"
+          disabled={isProcessed}
+          style={{ backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
+        />
+        <small className="form-text text-muted">
+          Valor fijo establecido en 1.5
+        </small>
+      </div>
 
+      {/* Motivo */}
+      <Input
+        label="Motivo"
+        id="motivo"
+        type="textarea"
+        value={formData.motivo}
+        onChange={handleInputChange}
+        disabled={isProcessed}
+      />
 
-        {/* Selección de Estado */}
-         <div className="app-input-container">
-             <label htmlFor="estado" className="app-input-label">Estado:</label>
-             <select
-                 id="estado" // <-- Usar 'estado' como ID y clave
-                 value={formData.estado}
-                 onChange={handleSelectChange}
-                 required
-                 className="app-input-field"
-                 // Deshabilitar si ya está procesado o si solo RRHH/Admin cambia el estado
-                 disabled={isProcessed} // Deshabilitar si ya está procesado
-             >
-                 {/* Ajusta las opciones según los estados reales de tu ENUM en DB */}
-                 <option value="Solicitada">Solicitada</option>
-                 <option value="Aprobada">Aprobada</option>
-                 <option value="Rechazada">Rechazada</option>
-                 <option value="Pagada">Pagada</option> {/* <-- Incluir "Pagada" si existe en tu ENUM */}
-             </select>
-         </div>
+      {/* Estado */}
+      <div className="form-group">
+        <label htmlFor="estado">Estado *</label>
+        <select
+          id="estado"
+          value={formData.estado}
+          onChange={handleInputChange}
+          className="form-control"
+          disabled={isProcessed}
+        >
+          <option value="Pendiente">Pendiente</option>
+          <option value="Aprobada">Aprobada</option>
+          <option value="Rechazada">Rechazada</option>
+          <option value="Pagada">Pagada</option>
+        </select>
+      </div>
 
-        {/* Checkbox Activo */}
-         <div className="app-input-container">
-              <div>
-                 <input type="checkbox" id="activo" checked={formData.activo} onChange={handleInputChange} disabled={isProcessed} /> {/* <-- Añadir checkbox activo */}
-                 <label htmlFor="activo"> Activo</label>
-              </div>
-         </div>
+      {/* Activo */}
+      <div className="form-check">
+        <input
+          type="checkbox"
+          id="activo"
+          checked={formData.activo}
+          onChange={handleInputChange}
+          className="form-check-input"
+          disabled={isProcessed}
+        />
+        <label htmlFor="activo" className="form-check-label">Activo</label>
+      </div>
 
+      {/* Mostrar ID de nómina si existe */}
+      {initialData.id_detalle_nomina && (
+        <div className="form-group">
+          <label>Procesado en nómina:</label>
+          <p className="form-control-plaintext">{initialData.id_detalle_nomina}</p>
+        </div>
+      )}
 
-         {/* Mostrar ID Detalle Nomina si existe (solo lectura) */}
-         {initialData.id_detalle_nomina && (
-              <div className="app-input-container">
-                  <label className="app-input-label">Procesado en Nómina Detalle ID:</label>
-                  <p>{initialData.id_detalle_nomina}</p>
-              </div>
-         )}
+      <Button 
+        type="submit" 
+        className="btn-primary"
+        disabled={isProcessed || loadingRelaciones}
+      >
+        {initialData?.id_hora_extra ? 'Actualizar' : 'Guardar'}
+      </Button>
 
-
-        <Button type="submit" className="app-button-primary" style={{marginTop: '15px'}} disabled={isProcessed}> {/* Deshabilitar botón si está procesado */}
-            {initialData.id_hora_extra ? 'Actualizar' : 'Registrar'} Horas Extra {/* <-- Usar id_hora_extra */}
-        </Button>
-         {isProcessed && (
-             <p style={{ color: 'red', marginTop: '10px' }}>* Este registro ya fue procesado en nómina y no puede ser modificado/eliminado.</p>
-         )}
+      {isProcessed && (
+        <div className="alert alert-warning mt-3">
+          Este registro ya fue procesado en nómina y no puede ser modificado.
+        </div>
+      )}
     </form>
   );
 }

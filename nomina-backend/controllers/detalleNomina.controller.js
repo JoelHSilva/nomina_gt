@@ -16,7 +16,7 @@ const getAllDetalleNomina = async (req, res) => {
                 { model: Nomina, as: 'nomina' },
                 { model: Empleado, as: 'empleado' },
                 // Opcional: Descomenta si necesitas estas relaciones
-                // { model: ConceptoAplicado, as: 'conceptos_aplicados' },
+                { model: ConceptoAplicado, as: 'conceptos_aplicados' },
                 // { model: PagoPrestamo, as: 'pagos_prestamo_asociados' },
                 // { model: HoraExtra, as: 'horas_extras_pagadas' },
                 // { model: LiquidacionViatico, as: 'liquidacion_viatico_incluida' },
@@ -37,7 +37,7 @@ const getDetalleNominaById = async (req, res) => {
             include: [
                 { model: Nomina, as: 'nomina' },
                 { model: Empleado, as: 'empleado' }, // ¡Clave para anidar el empleado!
-                // Opcional: Otras relaciones
+                { model: ConceptoAplicado, as: 'conceptos_aplicados'}
             ]
         });
         if (detalle) {
