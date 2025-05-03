@@ -18,6 +18,7 @@ function Navigation() {
     { to: '/horas-extras', label: 'Horas Extras' },
     { to: '/tipos-viaticos', label: 'Tipos Viáticos' },
     { to: '/destinos-viaticos', label: 'Destinos Viáticos' },
+    { to: '/reporte/pagos', label: 'Reporte de Pagos'},
     // Puedes añadir enlaces a otras partes de viaticos
     // { to: '/solicitudes-viaticos', label: 'Solicitudes Viáticos' },
 

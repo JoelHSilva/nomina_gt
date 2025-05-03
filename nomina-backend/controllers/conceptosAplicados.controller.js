@@ -8,10 +8,10 @@ const ConceptoPago = db.ConceptoPago;
 const getAllConceptosAplicados = async (req, res) => {
     try {
         const conceptosAplicados = await ConceptoAplicado.findAll({
-             // include: [
-             //     { model: DetalleNomina, as: 'detalle_nomina' },
-             //     { model: ConceptoPago, as: 'concepto_pago' }
-             // ] // Incluir relaciones si es necesario
+              include: [
+                  { model: DetalleNomina, as: 'detalle_nomina' },
+                  { model: ConceptoPago, as: 'concepto_pago' }
+              ] 
         });
         res.json(conceptosAplicados);
     } catch (error) {
@@ -25,10 +25,10 @@ const getConceptoAplicadoById = async (req, res) => {
     try {
         const { id } = req.params;
         const conceptoAplicado = await ConceptoAplicado.findByPk(id, {
-             // include: [
-             //     { model: DetalleNomina, as: 'detalle_nomina' },
-             //     { model: ConceptoPago, as: 'concepto_pago' }
-             // ] // Incluir relaciones si es necesario
+              include: [
+                  { model: DetalleNomina, as: 'detalle_nomina' },
+                  { model: ConceptoPago, as: 'concepto_pago' }
+              ]
         });
         if (conceptoAplicado) {
             res.json(conceptoAplicado);

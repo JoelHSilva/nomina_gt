@@ -21,6 +21,7 @@ import HorasExtrasPage from '../pages/HorasExtrasPage.jsx'; // <-- Importa la p�
 import TiposViaticosPage from '../pages/TiposViaticosPage.jsx'; // <-- Importa
 import DestinosViaticosPage from '../pages/DestinosViaticosPage.jsx'; // <-- Importa
 import UsuariosPage from '../pages/UsuariosPage.jsx'; // <-- Importa la página
+import ReportePagos from '../pages/ReportePagos.jsx';
 
 
 
@@ -98,6 +99,8 @@ function AppRoutes() {
         {/* Ruta de Usuarios */}
         <Route path="/usuarios" element={<UsuariosPage />} /> {/* <-- Ruta para la gestión */}
 
+        {/* Ruta de Reporte de Pagos */}
+        <Route path="/reportes/pagos" element={<ReportePagos />} /> {/* <-- Ruta para los reportes de pagos*/}
 
 
 
