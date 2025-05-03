@@ -1,4 +1,3 @@
-// src/pages/HorasExtrasPage.jsx
 import React, { useState, useEffect } from 'react';
 import api from '../api/api.jsx';
 import { ENDPOINTS } from '../api/endpoints.jsx';
@@ -8,51 +7,127 @@ import Modal from '../components/Common/Modal.jsx';
 import LoadingSpinner from '../components/Common/LoadingSpinner.jsx';
 import HorasExtrasForm from '../components/Forms/HorasExtrasForm.jsx';
 
+class ErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ color: 'red', padding: '20px' }}>
+          <h3>Algo salió mal</h3>
+          <p>{this.state.error.message}</p>
+          <button onClick={() => window.location.reload()}>Recargar página</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function HorasExtrasPage() {
   const [horasExtras, setHorasExtras] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingHoraExtra, setEditingHoraExtra] = useState(null); // Registro seleccionado para editar
+  const [editingHoraExtra, setEditingHoraExtra] = useState(null);
 
-  // Columnas para la tabla de Horas Extras - Ajustadas a la estructura real del backend
+  // Función para normalizar los datos de la API
+  const normalizeHoraExtraData = (data) => {
+    // Obtener nombre del empleado de diferentes fuentes
+    let nombreEmpleado = [
+      data.empleado_nombre_completo,
+      data.empleado?.nombre_completo,
+      data.empleado ? `${data.empleado.nombre || ''} ${data.empleado.apellido || ''}`.trim() : null
+    ].find(name => name && name.trim() !== '');
+    
+    // Si no encontramos nombre, usar el ID como fallback
+    if (!nombreEmpleado) {
+      nombreEmpleado = `ID: ${data.id_empleado}`;
+    }
+
+    return {
+      id_hora_extra: data.id_hora_extra,
+      id_empleado: data.id_empleado,
+      empleado_nombre_completo: nombreEmpleado,
+      fecha: data.fecha,
+      horas: data.horas || 0,
+      multiplicador: data.multiplicador || 1.5,
+      motivo: data.motivo || '',
+      estado: data.estado || 'Pendiente',
+      aprobado_por: data.aprobado_por || '',
+      id_detalle_nomina: data.id_detalle_nomina || null,
+      activo: data.activo !== false,
+      fecha_creacion: data.fecha_creacion,
+      // Mantenemos el objeto empleado completo si existe
+      ...(data.empleado && { empleado: data.empleado })
+    };
+  };
+
   const columns = [
-    { key: 'id_hora_extra', title: 'ID' }, // <-- Usar id_hora_extra
-    // { key: 'id_empleado', title: 'ID Empleado' },
-    { key: 'empleado_nombre_completo', title: 'Empleado' }, // Asumiendo que backend une y devuelve nombre
-    { key: 'fecha', title: 'Fecha', render: (value) => new Date(value).toLocaleDateString() },
-    { key: 'horas', title: 'Cantidad Horas' }, // <-- Usar 'horas'
-    { key: 'multiplicador', title: 'Multiplicador' }, // Si tu backend devuelve este campo
-    { key: 'motivo', title: 'Motivo' }, // <-- Añadir columna Motivo
-    { key: 'estado', title: 'Estado' }, // <-- Usar 'estado'
-    { key: 'aprobado_por', title: 'Aprobado Por' }, // Si tu backend devuelve este campo
-    { key: 'id_detalle_nomina', title: 'Procesado en Nómina ID', render: (value) => value || 'No' },
-    { key: 'activo', title: 'Activo?', render: (value) => (value ? 'Sí' : 'No') },
-    { key: 'fecha_creacion', title: 'Fecha Creación', render: (value) => new Date(value).toLocaleDateString() },
-    { // Columna de acciones
+    { key: 'id_hora_extra', title: 'ID' },
+    { key: 'empleado_nombre_completo', title: 'Empleado' },
+    { 
+      key: 'fecha', 
+      title: 'Fecha', 
+      render: (value) => value ? new Date(value).toLocaleDateString() : 'N/A' 
+    },
+    { key: 'horas', title: 'Cantidad Horas' },
+    { key: 'multiplicador', title: 'Multiplicador' },
+    { key: 'motivo', title: 'Motivo' },
+    { key: 'estado', title: 'Estado' },
+    { key: 'aprobado_por', title: 'Aprobado Por' },
+    { 
+      key: 'id_detalle_nomina', 
+      title: 'Procesado en Nómina ID', 
+      render: (value) => value || 'No' 
+    },
+    { 
+      key: 'activo', 
+      title: 'Activo?', 
+      render: (value) => (value ? 'Sí' : 'No') 
+    },
+    { 
+      key: 'fecha_creacion', 
+      title: 'Fecha Creación', 
+      render: (value) => value ? new Date(value).toLocaleDateString() : 'N/A' 
+    },
+    {
       key: 'actions',
       title: 'Acciones',
-      // CORREGIDO: Añadir 'return' antes del JSX y cerrar llaves {} correctamente
       render: (value, item) => {
-        // Determinar si el registro fue procesado en nómina
         const isProcessed = !!item.id_detalle_nomina;
-        return ( // <-- AÑADIDO 'return' aquí
-            <>
-              {/* Deshabilitar Editar y Eliminar si ya fue procesado en nómina */}
-              <Button onClick={() => handleEdit(item)} className="app-button" style={{ marginRight: '5px', marginBottom: '5px' }} disabled={isProcessed}>Editar</Button>
-              <Button onClick={() => handleDelete(item.id_hora_extra)} className="app-button-danger" style={{ marginBottom: '5px' }} disabled={isProcessed}>Eliminar</Button> {/* <-- Usar id_hora_extra */}
-               {/* Si necesitas botones de flujo de trabajo por estado, agrégalos aquí */}
-               {/* Ejemplo: Botón Aprobar si estado es 'Solicitada' y no procesado */}
-               {/* {item.estado === 'Solicitada' && !isProcessed && (
-                   <Button onClick={() => handleApprove(item.id_hora_extra)} className="app-button-success">Aprobar</Button>
-               )} */}
-            </>
+        return (
+          <>
+            <Button 
+              onClick={() => handleEdit(item)} 
+              className="app-button" 
+              style={{ marginRight: '5px', marginBottom: '5px' }} 
+              disabled={isProcessed}
+            >
+              Editar
+            </Button>
+            <Button 
+              onClick={() => handleDelete(item.id_hora_extra)} 
+              className="app-button-danger" 
+              style={{ marginBottom: '5px' }} 
+              disabled={isProcessed}
+            >
+              Eliminar
+            </Button>
+          </>
         );
-      }, // <-- Fin de la función render
+      },
     },
   ];
 
-  // --- Carga de datos ---
   useEffect(() => {
     fetchHorasExtras();
   }, []);
@@ -60,153 +135,137 @@ function HorasExtrasPage() {
   const fetchHorasExtras = async () => {
     try {
       setLoading(true);
-       // Asegúrate de que tu backend une los datos del empleado para mostrar el nombre
-       // y devuelve los campos con los nombres correctos (id_hora_extra, horas, motivo, estado)
-      const data = await api.getAll('HORAS_EXTRAS'); // Usar la clave string
-      setHorasExtras(data);
+      const data = await api.getAll('HORAS_EXTRAS');
+      
+      if (!Array.isArray(data)) {
+        throw new Error('La respuesta de la API no es un array válido');
+      }
+
+      // Normalizar los datos antes de guardarlos en el estado
+      const normalizedData = data.map(normalizeHoraExtraData);
+      setHorasExtras(normalizedData);
+      setError(null);
     } catch (err) {
-      setError('Error al cargar los registros de horas extras.');
-      console.error(err);
+      console.error('Error fetching horas extras:', err);
+      setError(`Error al cargar los datos: ${err.message}`);
+      setHorasExtras([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // --- Manejo de Modal y Formulario ---
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingHoraExtra(null); // Limpiar el registro de edición al cerrar
+    setEditingHoraExtra(null);
   };
 
   const handleCreate = () => {
-    setEditingHoraExtra(null); // Asegurarse de que no estamos editando
+    setEditingHoraExtra(null);
     openModal();
   };
 
   const handleEdit = (horaExtra) => {
-       // No permitir editar si ya fue procesado en nómina
-       if (!!horaExtra.id_detalle_nomina) {
-            alert('Este registro de horas extras ya fue procesado en nómina y no puede ser modificado.');
-            return;
-       }
-    setEditingHoraExtra(horaExtra); // Cargar datos en el formulario
+    if (!!horaExtra.id_detalle_nomina) {
+      alert('Este registro ya fue procesado en nómina y no puede ser modificado.');
+      return;
+    }
+    setEditingHoraExtra(normalizeHoraExtraData(horaExtra));
     openModal();
   };
 
   const handleSubmit = async (formData) => {
     try {
       setLoading(true);
-      // Usar id_hora_extra para verificar si es edición
-      if (editingHoraExtra && editingHoraExtra.id_hora_extra) {
-        // Actualizar registro existente
-        await api.update('HORAS_EXTRAS', editingHoraExtra.id_hora_extra, formData); // <-- Usar id_hora_extra
-        console.log('Registro de horas extras actualizado:', formData);
+      if (editingHoraExtra?.id_hora_extra) {
+        await api.update('HORAS_EXTRAS', editingHoraExtra.id_hora_extra, formData);
       } else {
-        // Crear nuevo registro
-        await api.create('HORAS_EXTRAS', formData); // Usar la clave string
-        console.log('Registro de horas extras creado:', formData);
+        await api.create('HORAS_EXTRAS', formData);
       }
-      closeModal(); // Cerrar modal después de guardar
-      fetchHorasExtras(); // Recargar la lista de registros
+      closeModal();
+      await fetchHorasExtras();
     } catch (err) {
-      setError('Error al guardar el registro de horas extras.'); // Manejo de error básico
-      console.error('Error al guardar horas extras:', err.response?.data || err.message);
-       // Mostrar mensaje de error al usuario
+      console.error('Error saving data:', err);
+      setError(`Error al guardar: ${err.response?.data?.message || err.message}`);
     } finally {
-       setLoading(false);
+      setLoading(false);
     }
   };
 
-  // --- Manejo de Eliminación ---
   const handleDelete = async (id) => {
-       // No permitir eliminar si ya fue procesado en nómina
-       const registroToDelete = horasExtras.find(h => h.id_hora_extra === id); // <-- Usar id_hora_extra
-        if (registroToDelete && !!registroToDelete.id_detalle_nomina) {
-            alert('Este registro de horas extras ya fue procesado en nómina y no puede ser eliminado.');
-            return;
-        }
+    const registroToDelete = horasExtras.find(h => h.id_hora_extra === id);
+    if (registroToDelete && !!registroToDelete.id_detalle_nomina) {
+      alert('Este registro ya fue procesado en nómina y no puede ser eliminado.');
+      return;
+    }
 
-
-    if (window.confirm(`¿Estás seguro de eliminar el registro de horas extras con ID ${id}?`)) {
+    if (window.confirm(`¿Estás seguro de eliminar el registro con ID ${id}?`)) {
       try {
         setLoading(true);
-        await api.remove('HORAS_EXTRAS', id); // Usar la clave string y el ID correcto
-        console.log('Registro de horas extras eliminado:', id);
-        fetchHorasExtras(); // Recargar la lista
+        await api.remove('HORAS_EXTRAS', id);
+        await fetchHorasExtras();
       } catch (err) {
-        setError('Error al eliminar el registro de horas extras.'); // Manejo de error básico
-        console.error('Error al eliminar horas extras:', err.response?.data || err.message);
-         // Mostrar mensaje de error al usuario
+        console.error('Error deleting record:', err);
+        setError(`Error al eliminar: ${err.response?.data?.message || err.message}`);
       } finally {
-         setLoading(false);
+        setLoading(false);
       }
     }
   };
 
-    // --- Manejo de Acción de Aprobación (Si se usa un endpoint específico) ---
-    // Si tienes un endpoint como PUT /api/v1/horas-extras/:id/aprobar
-    /*
-    const handleApprove = async (id) => {
-        // Buscar el registro para verificar si no está procesado
-        const itemToApprove = horasExtras.find(h => h.id_hora_extra === id); // <-- Usar id_hora_extra
-         if (itemToApprove && !!itemToApprove.id_detalle_nomina) {
-             alert('Este registro ya fue procesado en nómina.');
-             return;
-         }
-        if (window.confirm(`¿Estás seguro de aprobar este registro de horas extras con ID ${id}?`)) {
-             try {
-                 setLoading(true);
-                 // Necesitas crear una función api.approveHoraExtra en api.jsx
-                 // await api.approveHoraExtra(id); // <-- Ejemplo
-                 console.log(`Acción: Aprobar Horas Extra ${id}`);
-                 fetchHorasExtras(); // Recargar
-             } catch (err) {
-                 setError('Error al aprobar el registro.');
-                 console.error('Error al aprobar horas extras:', err.response?.data || err.message);
-             } finally {
-                 setLoading(false);
-             }
-        }
-    };
-    */
-
-
-  // --- Renderizado ---
   if (loading) {
     return <LoadingSpinner />;
   }
 
-  if (error) {
-    return <div style={{ color: 'red' }}>{error}</div>;
-  }
-
   return (
-    // La clase 'main-content' ya provee padding gracias a App.jsx
     <div>
       <h2>Gestión de Horas Extras</h2>
 
-      <Button onClick={handleCreate} className="app-button-primary" style={{ marginBottom: '20px' }}>
-          Registrar Horas Extra
+      {error && (
+        <div style={{ color: 'red', marginBottom: '15px', padding: '10px', border: '1px solid red' }}>
+          {error}
+          <button 
+            onClick={() => setError(null)} 
+            style={{ marginLeft: '10px', cursor: 'pointer' }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      <Button 
+        onClick={handleCreate} 
+        className="app-button-primary" 
+        style={{ marginBottom: '20px' }}
+      >
+        Registrar Horas Extra
       </Button>
 
-      {/* Tabla para mostrar los registros */}
-      <Table data={horasExtras} columns={columns} />
+      <Table 
+        data={horasExtras} 
+        columns={columns} 
+        emptyMessage="No hay registros de horas extras disponibles"
+      />
 
-      {/* Modal para crear o editar registro */}
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
-        // Usar id_hora_extra para verificar modo edición
-        title={editingHoraExtra && editingHoraExtra.id_hora_extra ? 'Editar Horas Extra' : 'Registrar Horas Extra'}
+        title={editingHoraExtra ? 'Editar Horas Extra' : 'Registrar Horas Extra'}
       >
         <HorasExtrasForm
-          initialData={editingHoraExtra} // Pasa los datos para edición
-          onSubmit={handleSubmit} // Pasa la función de envío
+          initialData={editingHoraExtra || {}}
+          onSubmit={handleSubmit}
+          onCancel={closeModal}
         />
       </Modal>
     </div>
   );
 }
 
-export default HorasExtrasPage;
+export default function HorasExtrasPageWithBoundary() {
+  return (
+    <ErrorBoundary>
+      <HorasExtrasPage />
+    </ErrorBoundary>
+  );
+}
