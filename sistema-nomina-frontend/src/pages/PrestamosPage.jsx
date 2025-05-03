@@ -43,18 +43,55 @@ function PrestamosPage() {
     { 
       key: 'actions',
       title: 'Acciones',
-      render: (value, item) => (
-        <>
-          <Button onClick={() => handleEdit(item)} className="app-button" style={{ marginRight: '5px', marginBottom: '5px' }}>Editar</Button>
-          <Button onClick={() => handleDelete(item.id_prestamo)} className="app-button-danger" style={{ marginRight: '5px', marginBottom: '5px' }}>Eliminar</Button>
-          {item.estado === 'En Curso' && item.saldo_pendiente > 0 && (
-            <Button onClick={() => handleRegisterPayment(item.id_prestamo, item.cuota_mensual)} className="app-button-success" style={{ marginRight: '5px', marginBottom: '5px' }}>Reg. Pago</Button>
-          )}
-          {(item.cuotas_pagadas > 0 || parseFloat(item.saldo_pendiente) < parseFloat(item.monto_total)) && (
-            <Button onClick={() => handleViewPayments(item.id_prestamo)} className="app-button-info" style={{ marginBottom: '5px' }}>Ver Pagos</Button>
-          )}
-        </>
-      ),
+      render: (value, item) => {
+        // Verificar si el préstamo tiene pagos registrados
+        const hasPayments = item.cuotas_pagadas > 0 || parseFloat(item.saldo_pendiente) < parseFloat(item.monto_total);
+        // Verificar si el préstamo está activo con saldo pendiente
+        const isActiveWithBalance = item.estado === 'En Curso' && item.saldo_pendiente > 0;
+        // Determinar si se deben deshabilitar edición/eliminación
+        const disableEditDelete = hasPayments || isActiveWithBalance;
+
+        return (
+          <>
+            <Button 
+              onClick={() => !disableEditDelete && handleEdit(item)} 
+              className="app-button" 
+              style={{ marginRight: '5px', marginBottom: '5px' }}
+              disabled={disableEditDelete}
+              title={disableEditDelete ? "No se puede editar préstamos con pagos registrados o en curso" : ""}
+            >
+              Editar
+            </Button>
+            <Button 
+              onClick={() => !disableEditDelete && handleDelete(item.id_prestamo)} 
+              className="app-button-danger" 
+              style={{ marginRight: '5px', marginBottom: '5px' }}
+              disabled={disableEditDelete}
+              title={disableEditDelete ? "No se puede eliminar préstamos con pagos registrados o en curso" : ""}
+            >
+              Eliminar
+            </Button>
+            {isActiveWithBalance && (
+              <Button 
+                onClick={() => handleRegisterPayment(item.id_prestamo, item.cuota_mensual)} 
+                className="app-button-success" 
+                style={{ marginRight: '5px', marginBottom: '5px' }}
+              >
+                Reg. Pago
+              </Button>
+            )}
+            {hasPayments && (
+              <Button 
+                onClick={() => handleViewPayments(item.id_prestamo)} 
+                className="app-button-info" 
+                style={{ marginBottom: '5px' }}
+              >
+                Ver Pagos
+              </Button>
+            )}
+          </>
+        );
+      },
     },
   ];
 
@@ -85,6 +122,14 @@ function PrestamosPage() {
   };
 
   const handleEdit = (prestamo) => {
+    const hasPayments = prestamo.cuotas_pagadas > 0 || parseFloat(prestamo.saldo_pendiente) < parseFloat(prestamo.monto_total);
+    const isActiveWithBalance = prestamo.estado === 'En Curso' && prestamo.saldo_pendiente > 0;
+    
+    if (hasPayments || isActiveWithBalance) {
+      alert("No se puede editar un préstamo con pagos registrados o en curso con saldo pendiente");
+      return;
+    }
+    
     setEditingPrestamo({
       id_prestamo: prestamo.id_prestamo,
       id_empleado: prestamo.id_empleado.toString(),
@@ -136,7 +181,16 @@ function PrestamosPage() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(`¿Eliminar préstamo ${id}?`)) {
+    const prestamo = prestamos.find(p => p.id_prestamo === id);
+    const hasPayments = prestamo.cuotas_pagadas > 0 || parseFloat(prestamo.saldo_pendiente) < parseFloat(prestamo.monto_total);
+    const isActiveWithBalance = prestamo.estado === 'En Curso' && prestamo.saldo_pendiente > 0;
+    
+    if (hasPayments || isActiveWithBalance) {
+      alert("No se puede eliminar un préstamo con pagos registrados o en curso con saldo pendiente");
+      return;
+    }
+    
+    if (window.confirm(`¿Eliminar préstamo ${id}? Esta acción no se puede deshacer.`)) {
       try {
         setLoading(true);
         await api.remove('PRESTAMOS', id);
@@ -154,13 +208,9 @@ function PrestamosPage() {
     try {
       setLoading(true);
       
-      // Obtener el préstamo para validar el saldo pendiente
       const prestamo = await api.getById('PRESTAMOS', loanId);
-      
-      // Validar si el saldo pendiente es menor que la cuota
       const montoAPagar = Math.min(parseFloat(cuotaMensual), parseFloat(prestamo.saldo_pendiente));
       
-      // Mostrar confirmación con el monto fijo
       const confirmacion = window.confirm(
         `Se registrará un pago de Q${montoAPagar.toFixed(2)} (Cuota mensual). ¿Desea continuar?`
       );
