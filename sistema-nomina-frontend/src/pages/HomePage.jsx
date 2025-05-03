@@ -1,20 +1,38 @@
-// src/pages/HomePage.jsx
 import React from 'react';
-// No necesitas importar el CSS aquí
+import { useNavigate } from 'react-router-dom'; // Para la redirección
 
 function HomePage() {
+  const navigate = useNavigate();  // Usamos useNavigate para redirigir en v6
+
+  const logout = () => {
+    localStorage.removeItem('authToken'); // Elimina el token del localStorage
+    navigate('/login'); // Redirige a la página de login
+  };
+
   return (
-    // Eliminar style={{ padding: '20px', textAlign: 'center' }}
-    <div style={{ textAlign: 'center' }}> {/* Mantener text-align si lo quieres centrado */}
+    <div style={{ textAlign: 'center' }}>
       <h2>Bienvenido al Sistema de Nómina Guatemalteca</h2>
       <p>Utiliza el menú de navegación para acceder a las diferentes secciones del sistema.</p>
-      {/* Puedes añadir aquí un dashboard básico o información relevante */}
+      
+      {/* Contenedor con el botón de logout */}
+      <div>
+        <button onClick={logout} style={logoutButtonStyle}>
+          Logout
+        </button>
+      </div>
     </div>
   );
 }
 
-export default HomePage;
+// Estilo para el botón de logout
+const logoutButtonStyle = {
+  backgroundColor: '#f44336', /* Rojo */
+  color: 'white',
+  padding: '10px 20px',
+  border: 'none',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  marginTop: '20px', // Agrega un margen superior para separar el botón
+};
 
-// Haz lo mismo para DepartamentosPage.jsx, EmpleadosPage.jsx, LogsSistemaPage.jsx, NotFoundPage.jsx
-// Simplemente quita el style={{ padding: '20px' }} del div contenedor principal en cada una.
-// El padding ahora lo maneja la clase .main-content en App.jsx
+export default HomePage;
