@@ -21,6 +21,11 @@ import HorasExtrasPage from '../pages/HorasExtrasPage.jsx'; // <-- Importa la p�
 import TiposViaticosPage from '../pages/TiposViaticosPage.jsx'; // <-- Importa
 import DestinosViaticosPage from '../pages/DestinosViaticosPage.jsx'; // <-- Importa
 import UsuariosPage from '../pages/UsuariosPage.jsx'; // <-- Importa la página
+import DetalleNominaDetailPage from '../pages/DetalleNominaDetailPage';
+import DetalleNominaListPage from '../pages/DetalleNominaListPage.jsx'; // <-- Importa la página de lista de detalles de nómina;
+
+
+
 
 
 
@@ -97,6 +102,16 @@ function AppRoutes() {
 
         {/* Ruta de Usuarios */}
         <Route path="/usuarios" element={<UsuariosPage />} /> {/* <-- Ruta para la gestión */}
+
+
+              {/* Ejemplo de ruta para la página de lista de detalles de nómina */}
+       <Route path="/detalles-nomina" element={<DetalleNominaListPage />} /> 
+
+      {/* Ruta para la página de detalle de un DetalleNomina específico */}
+      {/* El :id indica que esta parte de la URL es un parámetro */}
+      <Route path="/detalles-nomina/:id" element={<DetalleNominaDetailPage />} />
+
+
 
 
 

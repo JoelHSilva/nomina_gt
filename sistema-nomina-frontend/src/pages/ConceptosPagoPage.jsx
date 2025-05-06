@@ -1,21 +1,19 @@
-// src/pages/ConceptosPagoPage.jsx
 import React, { useState, useEffect } from 'react';
-import api from '../api/api.jsx'; // Asegúrate de la extensión .jsx
-import { ENDPOINTS } from '../api/endpoints.jsx'; // Asegúrate de la extensión .jsx
-import Table from '../components/Common/Table.jsx'; // Asegúrate de la extensión .jsx
-import Button from '../components/Common/Button.jsx'; // Asegúrate de la extensión .jsx
-import Modal from '../components/Common/Modal.jsx'; // Asegúrate de la extensión .jsx
-import LoadingSpinner from '../components/Common/LoadingSpinner.jsx'; // Asegúrate de la extensión .jsx
-import ConceptoPagoForm from '../components/Forms/ConceptoPagoForm.jsx'; // Importa el formulario específico
+import api from '../api/api.jsx';
+import { ENDPOINTS } from '../api/endpoints.jsx';
+import Table from '../components/Common/Table.jsx';
+import Button from '../components/Common/Button.jsx';
+import Modal from '../components/Common/Modal.jsx';
+import LoadingSpinner from '../components/Common/LoadingSpinner.jsx';
+import ConceptoPagoForm from '../components/Forms/ConceptoPagoForm.jsx';
 
 function ConceptosPagoPage() {
   const [conceptos, setConceptos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingConcepto, setEditingConcepto] = useState(null); // Concepto seleccionado para editar
+  const [editingConcepto, setEditingConcepto] = useState(null);
 
-  // Columnas para la tabla de Conceptos de Pago
   const columns = [
     { key: 'id_concepto', title: 'ID' },
     { key: 'codigo', title: 'Código' },
@@ -28,30 +26,43 @@ function ConceptosPagoPage() {
     { key: 'afecta_isr', title: 'Afecta ISR?', render: (value) => (value ? 'Sí' : 'No') },
     { key: 'es_viatico', title: 'Es Viático?', render: (value) => (value ? 'Sí' : 'No') },
     { key: 'obligatorio', title: 'Obligatorio?', render: (value) => (value ? 'Sí' : 'No') },
-    { key: 'activo', title: 'Activo?', render: (value) => (value ? 'Sí' : 'No') },
-    // { key: 'descripcion', title: 'Descripción' }, // Opcional mostrar en tabla
+    { 
+      key: 'activo', 
+      title: 'Estado', 
+      render: (value) => (
+        <span style={{ color: value ? 'green' : 'red' }}>
+          {value ? 'Activo' : 'Inactivo'}
+        </span>
+      ) 
+    },
     { key: 'fecha_creacion', title: 'Fecha Creación', render: (value) => new Date(value).toLocaleDateString() },
-    { // Columna de acciones
+    { 
       key: 'actions',
       title: 'Acciones',
-      render: (value, item) => ( // item es el objeto completo del concepto
+      render: (value, item) => (
         <>
-          <Button onClick={() => handleEdit(item)} className="app-button" style={{ marginRight: '5px' }}>Editar</Button>
-          <Button onClick={() => handleDelete(item.id_concepto)} className="app-button-danger">Eliminar</Button>
+          <Button onClick={() => handleEdit(item)} className="app-button" style={{ marginRight: '5px' }}>
+            Editar
+          </Button>
+          <Button 
+            onClick={() => handleToggleStatus(item.id_concepto, item.activo)}
+            className={item.activo ? "app-button-danger" : "app-button-success"}
+          >
+            {item.activo ? 'Desactivar' : 'Activar'}
+          </Button>
         </>
       ),
     },
   ];
 
-  // --- Carga de datos ---
   useEffect(() => {
     fetchConceptos();
-  }, []); // Se ejecuta solo una vez al montar
+  }, []);
 
   const fetchConceptos = async () => {
     try {
       setLoading(true);
-      const data = await api.getAll('CONCEPTOS_PAGO'); // Usar la clave string
+      const data = await api.getAll('CONCEPTOS_PAGO');
       setConceptos(data);
     } catch (err) {
       setError('Error al cargar los conceptos de pago.');
@@ -61,94 +72,98 @@ function ConceptosPagoPage() {
     }
   };
 
-  // --- Manejo de Modal y Formulario ---
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingConcepto(null); // Limpiar el concepto de edición al cerrar
+    setEditingConcepto(null);
   };
 
   const handleCreate = () => {
-    setEditingConcepto(null); // Asegurarse de que no estamos editando
+    setEditingConcepto(null);
     openModal();
   };
 
   const handleEdit = (concepto) => {
-    setEditingConcepto(concepto); // Cargar datos en el formulario
+    setEditingConcepto(concepto);
     openModal();
   };
 
   const handleSubmit = async (formData) => {
     try {
       setLoading(true);
-      if (editingConcepto) {
-        // Actualizar concepto existente
-        await api.update('CONCEPTOS_PAGO', editingConcepto.id_concepto, formData); // Usar la clave string
-        console.log('Concepto de pago actualizado:', formData);
+      if (editingConcepto?.id_concepto) {
+        await api.update('CONCEPTOS_PAGO', editingConcepto.id_concepto, formData);
       } else {
-        // Crear nuevo concepto
-        await api.create('CONCEPTOS_PAGO', formData); // Usar la clave string
-        console.log('Concepto de pago creado:', formData);
+        await api.create('CONCEPTOS_PAGO', formData);
       }
-      closeModal(); // Cerrar modal después de guardar
-      fetchConceptos(); // Recargar la lista de conceptos
+      closeModal();
+      await fetchConceptos();
     } catch (err) {
-      setError('Error al guardar el concepto de pago.'); // Manejo de error básico
+      setError(err.response?.data?.message || 'Error al guardar el concepto de pago.');
       console.error('Error al guardar concepto:', err.response?.data || err.message);
-       // Mostrar mensaje de error al usuario
     } finally {
-       setLoading(false);
+      setLoading(false);
     }
   };
 
-  // --- Manejo de Eliminación ---
-  const handleDelete = async (id) => {
-    if (window.confirm(`¿Estás seguro de eliminar el concepto de pago con ID ${id}?`)) {
+  const handleToggleStatus = async (id, currentStatus) => {
+    const action = currentStatus ? 'desactivar' : 'activar';
+    
+    if (window.confirm(`¿Estás seguro de ${action} el concepto con ID ${id}?`)) {
       try {
         setLoading(true);
-        await api.remove('CONCEPTOS_PAGO', id); // Usar la clave string
-        console.log('Concepto de pago eliminado:', id);
-        fetchConceptos(); // Recargar la lista
+        await api.update('CONCEPTOS_PAGO', id, { activo: !currentStatus });
+        await fetchConceptos();
       } catch (err) {
-        setError('Error al eliminar el concepto de pago.'); // Manejo de error básico
-        console.error('Error al eliminar concepto:', err.response?.data || err.message);
-         // Mostrar mensaje de error al usuario
+        setError(`Error al ${action} el concepto: ${err.response?.data?.message || err.message}`);
+        console.error(`Error al ${action} concepto:`, err);
       } finally {
-         setLoading(false);
+        setLoading(false);
       }
     }
   };
 
-  // --- Renderizado ---
   if (loading) {
     return <LoadingSpinner />;
   }
 
   if (error) {
-    return <div style={{ color: 'red' }}>{error}</div>;
+    return <div className="error-message">{error}</div>;
   }
 
   return (
-    // La clase 'main-content' ya provee padding gracias a App.jsx
-    <div>
+    <div className="main-content">
       <h2>Gestión de Conceptos de Pago</h2>
-
-      <Button onClick={handleCreate} className="app-button-primary" style={{ marginBottom: '20px' }}>
+      
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <Button onClick={handleCreate} className="app-button-primary">
           Crear Nuevo Concepto
-      </Button>
+        </Button>
+        <div>
+          <Button 
+            onClick={() => fetchConceptos()} 
+            className="app-button-secondary"
+            style={{ marginRight: '10px' }}
+          >
+            Recargar
+          </Button>
+        </div>
+      </div>
 
-      {/* Tabla para mostrar los conceptos */}
-      <Table data={conceptos} columns={columns} />
+      <Table 
+        data={conceptos} 
+        columns={columns} 
+        emptyMessage="No hay conceptos de pago registrados"
+      />
 
-      {/* Modal para crear o editar concepto */}
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
-        title={editingConcepto ? 'Editar Concepto de Pago' : 'Crear Concepto de Pago'}
+        title={editingConcepto?.id_concepto ? `Editar Concepto #${editingConcepto.id_concepto}` : 'Nuevo Concepto de Pago'}
       >
         <ConceptoPagoForm
-          initialData={editingConcepto} // Pasa los datos para edición
-          onSubmit={handleSubmit} // Pasa la función de envío
+          initialData={editingConcepto}
+          onSubmit={handleSubmit}
         />
       </Modal>
     </div>
