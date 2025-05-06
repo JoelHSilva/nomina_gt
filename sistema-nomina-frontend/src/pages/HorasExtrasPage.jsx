@@ -1,4 +1,3 @@
-// src/pages/HorasExtrasPage.jsx
 import React, { useState, useEffect } from 'react';
 import api from '../api/api.jsx';
 // Si no usas ENDPOINTS, puedes quitar esta importación
@@ -8,6 +7,31 @@ import Button from '../components/Common/Button.jsx';
 import Modal from '../components/Common/Modal.jsx';
 import LoadingSpinner from '../components/Common/LoadingSpinner.jsx';
 import HorasExtrasForm from '../components/Forms/HorasExtrasForm.jsx';
+
+class ErrorBoundary extends React.Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('ErrorBoundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ color: 'red', padding: '20px' }}>
+          <h3>Algo salió mal</h3>
+          <p>{this.state.error.message}</p>
+          <button onClick={() => window.location.reload()}>Recargar página</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function HorasExtrasPage() {
   const [horasExtras, setHorasExtras] = useState([]);
@@ -202,4 +226,10 @@ function HorasExtrasPage() {
   );
 }
 
-export default HorasExtrasPage;
+export default function HorasExtrasPageWithBoundary() {
+  return (
+    <ErrorBoundary>
+      <HorasExtrasPage />
+    </ErrorBoundary>
+  );
+}

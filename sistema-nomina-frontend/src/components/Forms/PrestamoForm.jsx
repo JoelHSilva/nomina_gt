@@ -1,4 +1,3 @@
-// src/components/Forms/PrestamoForm.jsx
 import React, { useState, useEffect } from 'react';
 import Input from '../Common/Input.jsx'; // Asegúrate de que la ruta sea correcta
 import Button from '../Common/Button.jsx'; // Asegúrate de que la ruta sea correcta

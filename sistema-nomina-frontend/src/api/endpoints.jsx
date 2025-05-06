@@ -21,6 +21,10 @@ export const ENDPOINTS = {
     DETALLE_NOMINA: `${API_BASE_URL}/detalle-nomina`,
     CONCEPTOS_APLICADOS: `${API_BASE_URL}/conceptos-aplicados`,
 
+    // Reportes de Nómina
+    REPORTE_PAGOS: `${API_BASE_URL}/reportes/pagos`,
+    REPORTE_PAGOS_DETALLE: (id) => `${API_BASE_URL}/reportes/pagos/${id}/detalle`,
+
     // Gestión de Empleados (adicionales)
     EMPLEADO_TOGGLE_STATUS: (id) => `${API_BASE_URL}/empleados/${id}/toggle-status`,
     HISTORIAL_SALARIOS: `${API_BASE_URL}/historial-salarios`,

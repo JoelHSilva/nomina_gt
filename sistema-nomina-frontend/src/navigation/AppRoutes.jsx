@@ -1,8 +1,7 @@
-// src/navigation/AppRoutes.js
+// src/navigation/AppRoutes.jsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-// Importa los componentes de página que ya hemos creado
 import HomePage from '../pages/HomePage.jsx';
 import DepartamentosPage from '../pages/DepartamentosPage.jsx';
 import EmpleadosPage from '../pages/EmpleadosPage.jsx';
@@ -58,6 +57,8 @@ import DetalleNominaListPage from '../pages/DetalleNominaListPage.jsx'; // <-- I
 
 
 function AppRoutes() {
+  const usuario = JSON.parse(localStorage.getItem('usuario')); // Lee el usuario autenticado
+
   return (
     <Routes>
       {/* Rutas principales */}
