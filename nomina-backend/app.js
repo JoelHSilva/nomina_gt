@@ -31,6 +31,8 @@ const tarifasDestinoRoutes = require('./routes/tarifasDestino.routes');
 const tiposViaticosRoutes = require('./routes/tiposViaticos.routes');
 const usuariosRoutes = require('./routes/usuarios.routes');
 const vacacionesRoutes = require('./routes/vacaciones.routes');
+const liquidacionesRoutes = require('./routes/liquidaciones.routes');
+const liquidacionesDetalleRoutes = require('./routes/liquidacionesDetalle.routes');
 
 const app = express();
 
@@ -70,12 +72,8 @@ app.use(`${apiPrefix}/tarifas-destino`, tarifasDestinoRoutes);
 app.use(`${apiPrefix}/tipos-viaticos`, tiposViaticosRoutes);
 app.use(`${apiPrefix}/usuarios`, usuariosRoutes);
 app.use(`${apiPrefix}/vacaciones`, vacacionesRoutes);
-
-// Puerto
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+app.use(`${apiPrefix}/liquidaciones`, liquidacionesRoutes);
+app.use(`${apiPrefix}/liquidaciones-detalle`, liquidacionesDetalleRoutes);
 
 // Manejador de errores
 app.use((err, req, res, next) => {

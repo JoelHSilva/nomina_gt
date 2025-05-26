@@ -9,6 +9,7 @@ function Navigation() {
     { to: '/puestos', label: 'Puestos' },
     { to: '/empleados', label: 'Empleados' },
     { to: '/nominas', label: 'Nóminas' },
+    { to: '/liquidaciones', label: 'Liquidaciones' },
     { to: '/periodos-pago', label: 'Periodos de Pago' },
     { to: '/conceptos-pago', label: 'Conceptos de Pago' },
     { to: '/configuracion-fiscal', label: 'Configuración Fiscal' },

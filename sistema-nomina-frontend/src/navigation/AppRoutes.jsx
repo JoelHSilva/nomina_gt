@@ -22,7 +22,9 @@ import DestinosViaticosPage from '../pages/DestinosViaticosPage.jsx'; // <-- Imp
 import UsuariosPage from '../pages/UsuariosPage.jsx'; // <-- Importa la página
 import DetalleNominaDetailPage from '../pages/DetalleNominaDetailPage';
 import DetalleNominaListPage from '../pages/DetalleNominaListPage.jsx'; // <-- Importa la página de lista de detalles de nómina;
-
+import LiquidacionList from '../components/Forms/LiquidacionList';
+import LiquidacionForm from '../components/Forms/LiquidacionForm';
+import LiquidacionDetail from '../pages/LiquidacionDetail';
 
 
 
@@ -111,7 +113,10 @@ function AppRoutes() {
       {/* Ruta para la página de detalle de un DetalleNomina específico */}
       {/* El :id indica que esta parte de la URL es un parámetro */}
       <Route path="/detalles-nomina/:id" element={<DetalleNominaDetailPage />} />
-
+      <Route path="/liquidaciones" element={<LiquidacionList />} />
+      <Route path="/liquidaciones/nueva" element={<LiquidacionForm />} />
+      <Route path="/liquidaciones/:id" element={<LiquidacionDetail />} />
+      
 
 
 

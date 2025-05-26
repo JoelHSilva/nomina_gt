@@ -8,8 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             },
             codigo_empleado: {
                 type: DataTypes.STRING(20),
-                allowNull: false,
-                unique: true // Mantener único: esencial
+                allowNull: false
             },
             nombre: {
                 type: DataTypes.STRING(100),
@@ -21,18 +20,14 @@ module.exports = (sequelize, DataTypes) => {
             },
             dpi: {
                 type: DataTypes.STRING(13),
-                allowNull: false,
-                unique: true // Mantener único: esencial
+                allowNull: false
             },
             nit: {
                 type: DataTypes.STRING(15),
-                allowNull: false,
-                unique: true // Mantener único: esencial
+                allowNull: false
             },
             numero_igss: {
                 type: DataTypes.STRING(20),
-                // REMOVIDO para reducir el conteo de índices definidos por el modelo
-                // unique: true,
                 allowNull: true
             },
             fecha_nacimiento: {
@@ -53,9 +48,11 @@ module.exports = (sequelize, DataTypes) => {
             },
             correo_electronico: {
                 type: DataTypes.STRING(100),
-                // REMOVIDO para reducir el conteo de índices definidos por el modelo
-                // unique: true,
                 allowNull: true
+            },
+            id_puesto: {
+                type: DataTypes.INTEGER,
+                allowNull: false
             },
             fecha_contratacion: {
                 type: DataTypes.DATEONLY,
@@ -103,8 +100,27 @@ module.exports = (sequelize, DataTypes) => {
             timestamps: false,
             underscored: true,
             freezeTableName: true,
-            // Asegurarse de que NO hay un array 'indexes' aquí que duplique índices únicos o añada muchos otros.
-            // Si tienes un array 'indexes', revísalo cuidadosamente.
+            indexes: [
+                {
+                    name: 'idx_codigo_empleado',
+                    unique: true,
+                    fields: ['codigo_empleado']
+                },
+                {
+                    name: 'idx_dpi',
+                    unique: true,
+                    fields: ['dpi']
+                },
+                {
+                    name: 'idx_nit',
+                    unique: true,
+                    fields: ['nit']
+                },
+                {
+                    name: 'idx_id_puesto',
+                    fields: ['id_puesto']
+                }
+            ]
         });
     
         // Definir asociaciones

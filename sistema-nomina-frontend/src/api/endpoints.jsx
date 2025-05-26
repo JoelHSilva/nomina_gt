@@ -1,63 +1,64 @@
 // src/api/endpoints.jsx
 
-const API_BASE_URL = 'http://localhost:3000/api/v1';
+const API_BASE_URL = ''; // Removemos la URL base ya que se maneja en api.jsx
 
 export const ENDPOINTS = {
-    // ... (La definición del objeto ENDPOINTS es la misma que antes) ...
     // Gestión General
-    DEPARTAMENTOS: `${API_BASE_URL}/departamentos`,
-    PUESTOS: `${API_BASE_URL}/puestos`,
-    EMPLEADOS: `${API_BASE_URL}/empleados`,
-    USUARIOS: `${API_BASE_URL}/usuarios`,
-    LOGS_SISTEMA: `${API_BASE_URL}/logs-sistema`,
+    DEPARTAMENTOS: `/departamentos`,
+    PUESTOS: `/puestos`,
+    EMPLEADOS: `/empleados`,
+    USUARIOS: `/usuarios`,
+    LOGS_SISTEMA: `/logs-sistema`,
 
     // Configuración
-    CONFIGURACION_FISCAL: `${API_BASE_URL}/configuracion-fiscal`,
-    CONCEPTOS_PAGO: `${API_BASE_URL}/conceptos-pago`,
+    CONFIGURACION_FISCAL: `/configuracion-fiscal`,
+    CONCEPTOS_PAGO: `/conceptos-pago`,
 
     // Nómina
-    PERIODOS_PAGO: `${API_BASE_URL}/periodos-pago`,
-    NOMINAS: `${API_BASE_URL}/nominas`,
-    DETALLE_NOMINA: `${API_BASE_URL}/detalle-nomina`,
-    CONCEPTOS_APLICADOS: `${API_BASE_URL}/conceptos-aplicados`,
+    PERIODOS_PAGO: `/periodos-pago`,
+    NOMINAS: `/nominas`,
+    DETALLE_NOMINA: `/detalle-nomina`,
+    CONCEPTOS_APLICADOS: `/conceptos-aplicados`,
+    LIQUIDACIONES: `${API_BASE_URL}/liquidaciones`,
+    LIQUIDACIONES_DETALLE: `${API_BASE_URL}/liquidaciones-detalle`,
 
     // Reportes de Nómina
-    REPORTE_PAGOS: `${API_BASE_URL}/reportes/pagos`,
-    REPORTE_PAGOS_DETALLE: (id) => `${API_BASE_URL}/reportes/pagos/${id}/detalle`,
+    REPORTE_PAGOS: `/reportes/pagos`,
+    REPORTE_PAGOS_DETALLE: (id) => `/reportes/pagos/${id}/detalle`,
 
     // Gestión de Empleados (adicionales)
-    EMPLEADO_TOGGLE_STATUS: (id) => `${API_BASE_URL}/empleados/${id}/toggle-status`,
-    HISTORIAL_SALARIOS: `${API_BASE_URL}/historial-salarios`,
+    EMPLEADO_TOGGLE_STATUS: (id) => `/empleados/${id}/toggle-status`,
+    HISTORIAL_SALARIOS: `/historial-salarios`,
 
     // Préstamos
-    PRESTAMOS: `${API_BASE_URL}/prestamos`,
-    PAGOS_PRESTAMOS: `${API_BASE_URL}/pagos-prestamos`,
-    PRESTAMO_PROCESS_PAYMENT: (id) => `${API_BASE_URL}/prestamos/${id}/payments`,
+    PRESTAMOS: `/prestamos`,
+    PAGOS_PRESTAMOS: `/pagos-prestamos`,
+    PRESTAMO_PROCESS_PAYMENT: (id) => `/prestamos/${id}/payments`,
 
     // Vacaciones y Ausencias
-    VACACIONES: `${API_BASE_URL}/vacaciones`,
-    AUSENCIAS: `${API_BASE_URL}/ausencias`,
-    HORAS_EXTRAS: `${API_BASE_URL}/horas-extras`,
+    VACACIONES: `/vacaciones`,
+    AUSENCIAS: `/ausencias`,
+    HORAS_EXTRAS: `/horas-extras`,
 
     // Viáticos
-    TIPOS_VIATICOS: `${API_BASE_URL}/tipos-viaticos`,
-    DESTINOS_VIATICOS: `${API_BASE_URL}/destinos-viaticos`,
-    TARIFAS_DESTINO: `${API_BASE_URL}/tarifas-destino`,
-    POLITICAS_VIATICOS_PUESTO: `${API_BASE_URL}/politicas-viaticos-puesto`,
+    TIPOS_VIATICOS: `/tipos-viaticos`,
+    DESTINOS_VIATICOS: `/destinos-viaticos`,
+    TARIFAS_DESTINO: `/tarifas-destino`,
+    POLITICAS_VIATICOS_PUESTO: `/politicas-viaticos-puesto`,
 
-    SOLICITUDES_VIATICOS: `${API_BASE_URL}/solicitudes-viaticos`,
-    DETALLE_SOLICITUD_VIATICOS: `${API_BASE_URL}/detalle-solicitud-viaticos`,
-    ANTICIPOS_VIATICOS: `${API_BASE_URL}/anticipos-viaticos`,
-    LIQUIDACION_VIATICOS: `${API_BASE_URL}/liquidacion-viaticos`,
-    DETALLE_LIQUIDACION_VIATICOS: `${API_BASE_URL}/detalle-liquidacion-viaticos`,
+    SOLICITUDES_VIATICOS: `/solicitudes-viaticos`,
+    DETALLE_SOLICITUD_VIATICOS: `/detalle-solicitud-viaticos`,
+    ANTICIPOS_VIATICOS: `/anticipos-viaticos`,
+    LIQUIDACION_VIATICOS: `/liquidacion-viaticos`,
+    DETALLE_LIQUIDACION_VIATICOS: `/detalle-liquidacion-viaticos`,
 
     // Acciones específicas de Nómina/Viáticos
-    NOMINA_VERIFICAR: (id) => `${API_BASE_URL}/nominas/${id}/verificar`,
-    NOMINA_APROBAR: (id) => `${API_BASE_URL}/nominas/${id}/aprobar`,
-    NOMINA_PAGAR: (id) => `${API_BASE_URL}/nominas/${id}/pagar`,
-    SOLICITUD_VIATICO_APROBAR: (id) => `${API_BASE_URL}/solicitudes-viaticos/${id}/aprobar`,
-    SOLICITUD_VIATICO_REGISTRAR_ANTICIPO: (id) => `${API_BASE_URL}/solicitudes-viaticos/${id}/anticipos`,
-    SOLICITUD_VIATICO_LIQUIDAR: (id) => `${API_BASE_URL}/solicitudes-viaticos/${id}/liquidar`,
+    NOMINA_VERIFICAR: (id) => `/nominas/${id}/verificar`,
+    NOMINA_APROBAR: (id) => `/nominas/${id}/aprobar`,
+    NOMINA_PAGAR: (id) => `/nominas/${id}/pagar`,
+    SOLICITUD_VIATICO_APROBAR: (id) => `/solicitudes-viaticos/${id}/aprobar`,
+    SOLICITUD_VIATICO_REGISTRAR_ANTICIPO: (id) => `/solicitudes-viaticos/${id}/anticipos`,
+    SOLICITUD_VIATICO_LIQUIDAR: (id) => `/solicitudes-viaticos/${id}/liquidar`,
 };
 
 // Funciones auxiliares para obtener URLs. Reciben la *clave string* del endpoint/acción.
