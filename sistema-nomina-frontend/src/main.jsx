@@ -1,7 +1,7 @@
 // src/index.js (o main.jsx si no lo renombraste)
 import React from 'react';
 import ReactDOM from 'react-dom/client'; // Importa desde react-dom/client
-import App from './App'; // Importa el componente App
+import App from './App.jsx'; // Importa el componente App
 import './index.css'; // Importa estilos globales si los tienes
 
 // Usa createRoot para montar la aplicación (API moderna de React 18+)

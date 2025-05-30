@@ -32,7 +32,8 @@ const testConnection = async () => {
   }
 };
 
+// Exportar tanto la instancia como la librería
 module.exports = {
   sequelize,
-  testConnection
+  Sequelize
 };

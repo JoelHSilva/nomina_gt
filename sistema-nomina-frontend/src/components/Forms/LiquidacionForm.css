@@ -1,0 +1,215 @@
+.liquidacion-form-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.form-title {
+  margin: 0;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.form-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 992px) {
+  .form-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.form-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.preview-section {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.preview-card {
+  padding: 20px;
+}
+
+.preview-card h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.2em;
+}
+
+.preview-details {
+  margin-bottom: 20px;
+}
+
+.preview-row {
+  display: flex;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.preview-label {
+  font-weight: 500;
+  color: #666;
+  width: 150px;
+}
+
+.preview-value {
+  flex: 1;
+  color: #333;
+}
+
+.preview-table {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.preview-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.preview-table th {
+  background: #f5f5f5;
+  padding: 10px;
+  text-align: left;
+  font-weight: 500;
+  color: #666;
+  border-bottom: 2px solid #ddd;
+}
+
+.preview-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.preview-table tfoot tr:last-child td {
+  border-bottom: none;
+  font-weight: bold;
+}
+
+.preview-table tfoot td {
+  background: #f9f9f9;
+}
+
+/* Estilos para los campos del formulario */
+.app-input-container {
+  margin-bottom: 15px;
+}
+
+.app-input-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #666;
+  font-weight: 500;
+}
+
+.app-input-field {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1em;
+  transition: border-color 0.2s;
+}
+
+.app-input-field:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.app-input-field:hover {
+  border-color: #4a90e2;
+}
+
+/* Estilos para los botones */
+.app-button-primary,
+.app-button-secondary {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.app-button-primary {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.app-button-primary:hover {
+  background-color: #357abd;
+}
+
+.app-button-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.app-button-secondary {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.app-button-secondary:hover {
+  background-color: #e8e8e8;
+}
+
+/* Estilos para el responsive */
+@media (max-width: 768px) {
+  .liquidacion-form-container {
+    padding: 15px;
+  }
+
+  .form-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .form-content {
+    grid-template-columns: 1fr;
+  }
+
+  .form-section,
+  .preview-section {
+    padding: 15px;
+  }
+
+  .preview-row {
+    flex-direction: column;
+  }
+
+  .preview-label {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+
+  .preview-table {
+    font-size: 0.85em;
+  }
+
+  .preview-table th,
+  .preview-table td {
+    padding: 8px;
+  }
+} 
