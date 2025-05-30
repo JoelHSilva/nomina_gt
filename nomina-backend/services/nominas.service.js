@@ -3,6 +3,7 @@ const db = require('../models');
 // Importar servicios dependientes
 const CalculosService = require('./calculos.service');
 const PrestamosService = require('./prestamos.service'); // Asegúrate de que este servicio exista si lo vas a usar más adelante
+const AusenciasService = require('./ausencias.service');
 
 // Importar modelos que se usan directamente en el servicio
 const PeriodoPago = db.PeriodoPago;
@@ -13,7 +14,8 @@ const Puesto = db.Puesto;
 const HoraExtra = db.HoraExtra;
 const PagoPrestamo = db.PagoPrestamo; // Asegúrate de importar PagoPrestamo
 const Prestamo = db.Prestamo; // Asegúrate de importar Prestamo
-// const ConceptoAplicado = db.ConceptoAplicado;
+const ConceptoPago = db.ConceptoPago; // Añadir modelo ConceptoPago
+const ConceptoAplicado = db.ConceptoAplicado; // Añadir modelo ConceptoAplicado
 // const LiquidacionViatico = db.LiquidacionViatico;
 
 
@@ -25,6 +27,7 @@ class NominasService {
         this.models = db;
         this.calculosService = new CalculosService();
         this.prestamosService = new PrestamosService(); // Inicializa la instancia
+        this.ausenciasService = new AusenciasService();
     }
 
     async generarNomina(idPeriodo, usuarioGeneracion = 'Sistema') {
@@ -107,36 +110,104 @@ class NominasService {
             const pagosPrestamoDataParaCrear = []; // Array para datos de PagoPrestamo
 
             // 5. Iterar sobre cada empleado para recolectar datos y cálculos
+            const detallesConceptosAplicados = []; // Mover la declaración aquí
             for (const empleado of empleados) {
                 // --- Lógica de Cálculo para cada Empleado ---
 
                 // Obtener el salario mensual completo del empleado
                 const salarioBaseMensual = parseFloat(empleado.salario_actual || 0);
 
-                // Calcular el Salario Base para el Período Actual
+                // Calcular días trabajados considerando ausencias
+                const { diasTrabajados, diasAusencia, diasTotales, detalleAusencias } = 
+                    await this.ausenciasService.calcularDiasTrabajadosConAusencias(
+                        empleado.id_empleado,
+                        periodo.fecha_inicio,
+                        periodo.fecha_fin
+                    );
+
+                // Calcular el Salario Base para el Período Actual considerando ausencias
                 let salarioBasePeriodo = salarioBaseMensual;
                 if (periodo.tipo === 'Quincenal') {
-                    salarioBasePeriodo = parseFloat((salarioBaseMensual / 2).toFixed(2));
-                } else if (periodo.tipo !== 'Mensual') {
+                    // Para quincenal, calculamos proporcionalmente según días trabajados
+                    const diasQuincena = 15; // Días hábiles en una quincena
+                    const factorProporcional = diasTrabajados / diasQuincena;
+                    salarioBasePeriodo = parseFloat((salarioBaseMensual * factorProporcional / 2).toFixed(2));
+                } else if (periodo.tipo === 'Mensual') {
+                    // Para mensual, calculamos proporcionalmente según días trabajados
+                    const diasMes = 30; // Días hábiles en un mes
+                    const factorProporcional = diasTrabajados / diasMes;
+                    salarioBasePeriodo = parseFloat((salarioBaseMensual * factorProporcional).toFixed(2));
+                } else {
                     console.warn(`Tipo de periodo desconocido "${periodo.tipo}" para el periodo ID ${idPeriodo}. Asumiendo salario mensual completo.`);
                 }
 
-                // Determinar días del periodo (campo informativo)
-                const diasPeriodoNominal = (periodo.tipo === 'Mensual') ? 30 : (periodo.tipo === 'Quincenal' ? 15 : null);
-                const diasTrabajados = diasPeriodoNominal || 30;
+                // --- INICIO: Lógica de Conceptos de Pago ---
+                // Obtener conceptos de pago activos que aplican a este empleado
+                const conceptosPagoActivos = await ConceptoPago.findAll({
+                    where: {
+                        activo: true,
+                        obligatorio: true // Solo conceptos obligatorios por ahora
+                    }
+                });
+
+                let otrosIngresos = 0;
+                let otrosDescuentos = 0;
+                let baseIGSS = salarioBaseMensual;
+                let baseISR = salarioBaseMensual;
+                const conceptosParaEsteEmpleado = []; // Array temporal para este empleado
+
+                // Procesar cada concepto de pago
+                for (const concepto of conceptosPagoActivos) {
+                    let montoConcepto = 0;
+
+                    // Calcular monto según tipo de concepto
+                    if (concepto.es_fijo) {
+                        montoConcepto = parseFloat(concepto.monto_fijo || 0);
+                    } else if (concepto.porcentaje) {
+                        // Si es porcentaje, aplicar sobre el salario base del período
+                        montoConcepto = parseFloat((salarioBasePeriodo * concepto.porcentaje / 100).toFixed(2));
+                    }
+
+                    // Acumular según tipo de concepto
+                    if (concepto.tipo === 'Ingreso') {
+                        otrosIngresos += montoConcepto;
+                        if (concepto.afecta_igss) baseIGSS += montoConcepto;
+                        if (concepto.afecta_isr) baseISR += montoConcepto;
+                    } else if (concepto.tipo === 'Descuento') {
+                        otrosDescuentos += montoConcepto;
+                    }
+
+                    // Guardar el concepto aplicado para este detalle
+                    conceptosParaEsteEmpleado.push({
+                        id_concepto: concepto.id_concepto,
+                        monto: montoConcepto,
+                        observacion: `Aplicado automáticamente por ser concepto obligatorio`,
+                        activo: true
+                    });
+                }
+                detallesConceptosAplicados.push(conceptosParaEsteEmpleado);
+                // --- FIN: Lógica de Conceptos de Pago ---
+
 
                 // Cálculos de descuentos (IGSS, ISR) - Usan el SALARIO MENSUAL completo para EL CÁLCULO
-                const igssLaboralCalculadoMensual = (anioParaCalculo !== null) ? await this.calculosService.calcularIGSS(salarioBaseMensual, anioParaCalculo) : 0;
-                const isrResultadoCalculadoMensual = (anioParaCalculo !== null) ? await this.calculosService.calcularISR(salarioBaseMensual, anioParaCalculo) : { isrMensual: 0, tablaAplicada: null };
+                const igssLaboralCalculadoMensual = (anioParaCalculo !== null) ? 
+                    await this.calculosService.calcularIGSS(baseIGSS, anioParaCalculo) : 0;
+                const isrResultadoCalculadoMensual = (anioParaCalculo !== null) ? 
+                    await this.calculosService.calcularISR(baseISR, anioParaCalculo) : { isrMensual: 0, tablaAplicada: null };
                 const isrCalculadoMensual = isrResultadoCalculadoMensual.isrMensual;
 
-                // Ajuste para IGSS e ISR en caso de Nómina Quincenal
+                // Ajuste para IGSS e ISR según el tipo de período y días trabajados
                  let igssLaboralPeriodo = igssLaboralCalculadoMensual;
                  let isrPeriodo = isrCalculadoMensual;
 
                  if (periodo.tipo === 'Quincenal') {
-                     igssLaboralPeriodo = parseFloat((igssLaboralCalculadoMensual / 2).toFixed(2));
-                     isrPeriodo = parseFloat((isrCalculadoMensual / 2).toFixed(2));
+                     const factorProporcional = diasTrabajados / 15; // 15 días hábiles en quincena
+                     igssLaboralPeriodo = parseFloat((igssLaboralCalculadoMensual * factorProporcional / 2).toFixed(2));
+                     isrPeriodo = parseFloat((isrCalculadoMensual * factorProporcional / 2).toFixed(2));
+                 } else if (periodo.tipo === 'Mensual') {
+                     const factorProporcional = diasTrabajados / 30; // 30 días hábiles en mes
+                     igssLaboralPeriodo = parseFloat((igssLaboralCalculadoMensual * factorProporcional).toFixed(2));
+                     isrPeriodo = parseFloat((isrCalculadoMensual * factorProporcional).toFixed(2));
                  }
 
                 // Bonificación incentivo mensual completa
@@ -198,29 +269,79 @@ class NominasService {
 
 
                 // 6. Calcular totales para el detalle de este empleado
-                const totalIngresosDetalle = salarioBasePeriodo + bonificacionIncentivo + montoTotalHorasExtrasEmpleado;
-                const totalDescuentosDetalle = igssLaboralPeriodo + isrPeriodo + totalDescuentoPrestamos;
+                const totalIngresosDetalle = salarioBasePeriodo + 
+                    bonificacionIncentivo + 
+                    montoTotalHorasExtrasEmpleado + 
+                    otrosIngresos; // Incluir otros ingresos
+
+                const totalDescuentosDetalle = igssLaboralPeriodo + 
+                    isrPeriodo + 
+                    totalDescuentoPrestamos + 
+                    otrosDescuentos; // Incluir otros descuentos
+
                 const liquidoRecibir = totalIngresosDetalle - totalDescuentosDetalle;
 
-                // 7. Preparar datos para el registro DetalleNomina (se crearán después en un bucle)
-                detallesNominaData.push({
-                    id_nomina: nuevaNomina.id_nomina,
-                    id_empleado: empleado.id_empleado,
-                    salario_base: salarioBasePeriodo,
-                    dias_trabajados: diasTrabajados,
-                    bonificacion_incentivo: bonificacionIncentivo,
-                    igss_laboral: igssLaboralPeriodo,
-                    isr: isrPeriodo,
-                    horas_extra: totalHorasExtrasEmpleado,
-                    monto_horas_extra: montoTotalHorasExtrasEmpleado,
-                    otros_ingresos: 0,
-                    otros_descuentos: totalDescuentoPrestamos,
-                    total_ingresos: totalIngresosDetalle,
-                    total_descuentos: totalDescuentosDetalle,
-                    liquido_recibir: liquidoRecibir,
-                    observaciones: '',
-                    activo: true,
-                });
+                // Dentro del bucle de empleados, justo antes de calcular los totales
+                console.log(`DEBUG: Cálculo de totales para empleado ${empleado.id_empleado}:`);
+                console.log(`- Salario Base del Período: ${salarioBasePeriodo}`);
+                console.log(`- Bonificación Incentivo: ${bonificacionIncentivo}`);
+                console.log(`- Monto Horas Extra: ${montoTotalHorasExtrasEmpleado}`);
+                console.log(`- Otros Ingresos: ${otrosIngresos}`);
+                console.log(`Total Ingresos: ${totalIngresosDetalle}`);
+
+                console.log(`- IGSS Laboral: ${igssLaboralPeriodo}`);
+                console.log(`- ISR: ${isrPeriodo}`);
+                console.log(`- Descuento Préstamos: ${totalDescuentoPrestamos}`);
+                console.log(`- Otros Descuentos: ${otrosDescuentos}`);
+                console.log(`Total Descuentos: ${totalDescuentosDetalle}`);
+
+                console.log(`Líquido a Recibir: ${liquidoRecibir}`);
+
+                if (liquidoRecibir < 0) {
+                    console.warn(`¡ADVERTENCIA! Líquido a recibir negativo para empleado ${empleado.id_empleado}`);
+                    console.warn(`Detalle de la situación:`);
+                    console.warn(`- Ingresos totales: ${totalIngresosDetalle}`);
+                    console.warn(`- Descuentos totales: ${totalDescuentosDetalle}`);
+                    console.warn(`- Diferencia: ${liquidoRecibir}`);
+                    
+                    // Análisis de proporciones
+                    if (totalIngresosDetalle > 0) {
+                        const porcentajeDescuentos = (totalDescuentosDetalle / totalIngresosDetalle) * 100;
+                        console.warn(`- Los descuentos representan el ${porcentajeDescuentos.toFixed(2)}% de los ingresos`);
+                    }
+                    
+                    // Análisis por componente
+                    if (totalDescuentoPrestamos > 0) {
+                        const porcentajePrestamos = (totalDescuentoPrestamos / totalDescuentosDetalle) * 100;
+                        console.warn(`- Los préstamos representan el ${porcentajePrestamos.toFixed(2)}% de los descuentos`);
+                    }
+                }
+
+                // 7. Preparar datos para el registro DetalleNomina
+                detallesNominaData.push({
+                    id_nomina: nuevaNomina.id_nomina,
+                    id_empleado: empleado.id_empleado,
+                    salario_base: salarioBasePeriodo,
+                    dias_trabajados: diasTrabajados,
+                    dias_ausencia: diasAusencia,
+                    dias_totales_periodo: diasTotales,
+                    bonificacion_incentivo: bonificacionIncentivo,
+                    igss_laboral: igssLaboralPeriodo,
+                    isr: isrPeriodo,
+                    horas_extra: totalHorasExtrasEmpleado,
+                    monto_horas_extra: montoTotalHorasExtrasEmpleado,
+                    otros_ingresos: otrosIngresos, // Ahora es dinámico
+                    otros_descuentos: totalDescuentoPrestamos + otrosDescuentos, // Incluye préstamos y otros descuentos
+                    total_ingresos: totalIngresosDetalle,
+                    total_descuentos: totalDescuentosDetalle,
+                    liquido_recibir: liquidoRecibir,
+                    observaciones: detalleAusencias.length > 0 ? 
+                        `Ausencias aplicadas: ${detalleAusencias.map(a => 
+                            `${a.tipo} (${a.dias} días)${a.afecta_salario ? ' - Afecta salario' : ''}`
+                        ).join(', ')}` : '',
+                    activo: true,
+                    detalle_ausencias: JSON.stringify(detalleAusencias)
+                });
 
                 // 8. Acumular totales para el registro principal de la Nómina
                 totalIngresosNomina += totalIngresosDetalle;
@@ -353,6 +474,40 @@ class NominasService {
                     { model: this.models.PeriodoPago, as: 'periodo_pago' }
                 ]
             });
+
+            // 11. Crear los conceptos aplicados para cada detalle
+            for (let i = 0; i < detallesCreados.length; i++) {
+                const detalle = detallesCreados[i];
+                const conceptosParaEsteDetalle = detallesConceptosAplicados[i] || [];
+                
+                if (conceptosParaEsteDetalle.length > 0) {
+                    const conceptosAplicadosData = conceptosParaEsteDetalle.map(concepto => ({
+                        ...concepto,
+                        id_detalle: detalle.id_detalle
+                    }));
+                    
+                    await ConceptoAplicado.bulkCreate(conceptosAplicadosData, { transaction: t });
+                }
+            }
+
+            // 12. Actualizar las horas extras para marcarlas como pagadas
+            if (horasExtrasParaActualizar.length > 0) {
+                for (const horaExtra of horasExtrasParaActualizar) {
+                    const idDetalleNominaAsignado = detallesCreados.find(
+                        detalle => detalle.id_empleado === horaExtra.id_empleado
+                    )?.id_detalle;
+
+                    if (idDetalleNominaAsignado) {
+                        await horaExtra.update({
+                            id_detalle_nomina: idDetalleNominaAsignado,
+                            estado: 'Pagada'
+                        }, { transaction: t });
+                    } else {
+                        console.warn(`No se encontró id_detalle_nomina para el empleado ID ${horaExtra.id_empleado}`);
+                    }
+                }
+            }
+
             return nominaCompleta;
 
         } catch (error) {

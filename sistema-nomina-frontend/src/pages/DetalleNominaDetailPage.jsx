@@ -107,6 +107,17 @@ function DetalleNominaDetailPage() {
             },
         },
     ];
+
+    // Función auxiliar para parsear el detalle de ausencias
+    const parsearDetalleAusencias = (detalleAusenciasStr) => {
+        try {
+            return JSON.parse(detalleAusenciasStr || '[]');
+        } catch (e) {
+            console.error('Error al parsear detalle de ausencias:', e);
+            return [];
+        }
+    };
+
     // --- Renderizado de la información ---
     return (
         <div className="detalle-nomina-detail-page"> {/* Clase CSS para estilizar */}
@@ -115,8 +126,11 @@ function DetalleNominaDetailPage() {
             {/* Sección de Información Principal del Detalle de Nómina */}
             <div className="detalle-nomina-section">
                 <h3>Información General</h3>
-                <p><strong>Salario Base:</strong> {detalleNomina.salario_base}</p>
-                <p><strong>Días Trabajados:</strong> {detalleNomina.dias_trabajados}</p>
+                <p><strong>Salario Base:</strong> Q {parseFloat(detalleNomina.salario_base).toFixed(2)}</p>
+                <p><strong>Días Trabajados:</strong> {parseFloat(detalleNomina.dias_trabajados).toFixed(1)} de {parseFloat(detalleNomina.dias_totales_periodo).toFixed(1)} días hábiles</p>
+                {detalleNomina.dias_ausencia > 0 && (
+                    <p><strong>Días de Ausencia:</strong> {parseFloat(detalleNomina.dias_ausencia).toFixed(1)} días</p>
+                )}
                 <p><strong>Horas Extra Registradas:</strong> {detalleNomina.horas_extra}</p>
                 <p><strong>Monto Horas Extra:</strong> {detalleNomina.monto_horas_extra}</p>
                 <p><strong>Bonificación Incentivo:</strong> {detalleNomina.bonificacion_incentivo}</p>
@@ -131,6 +145,48 @@ function DetalleNominaDetailPage() {
                 <p><strong>Activo:</strong> {detalleNomina.activo ? 'Sí' : 'No'}</p>
                 <p><strong>Fecha Creación:</strong> {new Date(detalleNomina.fecha_creacion).toLocaleDateString()}</p>
             </div>
+
+            {/* Nueva Sección de Ausencias */}
+            {detalleNomina.dias_ausencia > 0 && (
+                <div className="detalle-nomina-section">
+                    <h3>Detalle de Ausencias</h3>
+                    <Table 
+                        data={parsearDetalleAusencias(detalleNomina.detalle_ausencias)}
+                        columns={[
+                            { 
+                                key: 'tipo', 
+                                title: 'Tipo de Ausencia',
+                                render: (value) => value || 'N/A'
+                            },
+                            { 
+                                key: 'fecha_inicio', 
+                                title: 'Fecha Inicio',
+                                render: (value) => value ? new Date(value).toLocaleDateString() : 'N/A'
+                            },
+                            { 
+                                key: 'fecha_fin', 
+                                title: 'Fecha Fin',
+                                render: (value) => value ? new Date(value).toLocaleDateString() : 'N/A'
+                            },
+                            { 
+                                key: 'dias', 
+                                title: 'Días',
+                                render: (value) => parseFloat(value).toFixed(1)
+                            },
+                            { 
+                                key: 'afecta_salario', 
+                                title: 'Afecta Salario',
+                                render: (value) => value ? 'Sí' : 'No'
+                            },
+                            { 
+                                key: 'motivo', 
+                                title: 'Motivo',
+                                render: (value) => value || 'N/A'
+                            }
+                        ]}
+                    />
+                </div>
+            )}
 
             {/* Sección de Información del Empleado (relación belongTo) */}
             <div className="detalle-nomina-section">
