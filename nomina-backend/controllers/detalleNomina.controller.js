@@ -79,16 +79,33 @@ const getDetalleNominaById = async (req, res) => {
     try {
         const { id } = req.params;
         const detalle = await DetalleNomina.findByPk(id, {
-            include: [
-                { model: Nomina, as: 'nomina' },
-                { model: Empleado, as: 'empleado' }, // ¡Clave para anidar el empleado!
-                // Opcional: Otras relaciones si las necesitas al obtener un solo detalle
-                { model: ConceptoAplicado, as: 'conceptos_aplicados' },
-                { model: PagoPrestamo, as: 'pagos_prestamo_asociados' },
-                { model: HoraExtra, as: 'horas_extras_pagadas' },
-                { model: LiquidacionViatico, as: 'liquidacion_viatico_incluida' },
-            ]
-        });
+            include: [
+                {
+                    model: Nomina,
+                    as: 'nomina',
+                    include: [
+                        { model: db.PeriodoPago, as: 'periodo_pago' }
+                    ]
+                },
+                {
+                    model: Empleado,
+                    as: 'empleado',
+                    include: [
+                        { model: db.Puesto, as: 'puesto' }
+                    ]
+                },
+                {
+                    model: ConceptoAplicado,
+                    as: 'conceptos_aplicados',
+                    include: [
+                        { model: db.ConceptoPago, as: 'concepto_pago' }
+                    ]
+                },
+                { model: PagoPrestamo, as: 'pagos_prestamo_asociados' },
+                { model: HoraExtra, as: 'horas_extras_pagadas' },
+                { model: LiquidacionViatico, as: 'liquidacion_viatico_incluida' },
+            ]
+        });
         if (detalle) {
             res.json(detalle);
         } else {

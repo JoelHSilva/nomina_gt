@@ -1,16 +1,20 @@
 // src/pages/DetalleNominaDetailPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; // Necesitas react-router-dom para obtener el ID de la URL
+import { useParams, useNavigate } from 'react-router-dom'; // Necesitas react-router-dom para obtener el ID de la URL
 import api from '../api/api.jsx';
 import { ENDPOINTS } from '../api/endpoints.jsx';
 import LoadingSpinner from '../components/Common/LoadingSpinner.jsx';
 import Table from '../components/Common/Table.jsx'; // Asumiendo que tienes un componente de tabla reutilizable
+import Button from '../components/Common/Button.jsx';
+import { FiFileText } from 'react-icons/fi';
+import './DetalleNominaDetailPage.css';
 // Asumiendo que tienes componentes para mostrar errores o mensajes vacíos
 // import ErrorMessage from '../components/Common/ErrorMessage.jsx';
 // import EmptyState from '../components/Common/EmptyState.jsx';
 
 function DetalleNominaDetailPage() {
     const { id } = useParams(); // Obtiene el parámetro 'id' de la URL
+    const navigate = useNavigate();
     const [detalleNomina, setDetalleNomina] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -41,16 +45,35 @@ function DetalleNominaDetailPage() {
 
     }, [id]); // El efecto se re-ejecuta si cambia el ID en la URL
 
+    const handleVerReporte = () => {
+        navigate(`/reportes/nomina/${id}`);
+    };
+
     if (loading) {
         return <LoadingSpinner />; // Muestra un spinner mientras carga
     }
 
     if (error) {
-        return <div style={{ color: 'red' }}>{error}</div>; // Muestra un mensaje de error
+        return (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+                <h2>Error al cargar el detalle</h2>
+                <p style={{ color: 'red' }}>{error}</p>
+                <Button onClick={() => navigate(-1)} className="app-button">
+                    Volver
+                </Button>
+            </div>
+        );
     }
 
     if (!detalleNomina) {
-        return <p>Detalle de nómina no encontrado.</p>; // Maneja el caso de ID no encontrado o si la carga falló
+        return (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+                <h2>Detalle de nómina no encontrado</h2>
+                <Button onClick={() => navigate(-1)} className="app-button">
+                    Volver
+                </Button>
+            </div>
+        );
     }
 
     // --- Definición de columnas para las tablas anidadas ---
@@ -60,7 +83,7 @@ function DetalleNominaDetailPage() {
         // Si ConceptoAplicado tiene un belongsTo a ConceptoPago y lo incluyeras, podrías hacer:
         // { key: 'concepto_pago.nombre', title: 'Concepto', render: (value, item) => item.concepto_pago?.nombre || 'N/A' },
         { key: 'id_concepto', title: 'ID Concepto' }, // Usamos solo el ID del concepto por ahora
-        { key: 'monto', title: 'Monto' },
+        { key: 'monto', title: 'Monto', render: (value) => `Q${parseFloat(value || 0).toFixed(2)}` },
         { key: 'observacion', title: 'Observación' },
         { key: 'activo', title: 'Activo?', render: (value) => (value ? 'Sí' : 'No') },
         // ... otras columnas relevantes para Concepto Aplicado
@@ -109,128 +132,197 @@ function DetalleNominaDetailPage() {
     ];
     // --- Renderizado de la información ---
     return (
-        <div className="detalle-nomina-detail-page"> {/* Clase CSS para estilizar */}
-            <h2>Detalle de Nómina #{detalleNomina.id_detalle}</h2>
-
-            {/* Sección de Información Principal del Detalle de Nómina */}
-            <div className="detalle-nomina-section">
-                <h3>Información General</h3>
-                <p><strong>Salario Base:</strong> {detalleNomina.salario_base}</p>
-                <p><strong>Días Trabajados:</strong> {detalleNomina.dias_trabajados}</p>
-                <p><strong>Horas Extra Registradas:</strong> {detalleNomina.horas_extra}</p>
-                <p><strong>Monto Horas Extra:</strong> {detalleNomina.monto_horas_extra}</p>
-                <p><strong>Bonificación Incentivo:</strong> {detalleNomina.bonificacion_incentivo}</p>
-                <p><strong>Otros Ingresos:</strong> {detalleNomina.otros_ingresos}</p>
-                <p><strong>Total Ingresos:</strong> {detalleNomina.total_ingresos}</p>
-                <p><strong>IGSS Laboral:</strong> {detalleNomina.igss_laboral}</p>
-                <p><strong>ISR:</strong> {detalleNomina.isr}</p>
-                <p><strong>Otros Descuentos:</strong> {detalleNomina.otros_descuentos}</p>
-                <p><strong>Total Descuentos:</strong> {detalleNomina.total_descuentos}</p>
-                <p><strong>Líquido a Recibir:</strong> {detalleNomina.liquido_recibir}</p>
-                <p><strong>Observaciones:</strong> {detalleNomina.observaciones || 'N/A'}</p>
-                <p><strong>Activo:</strong> {detalleNomina.activo ? 'Sí' : 'No'}</p>
-                <p><strong>Fecha Creación:</strong> {new Date(detalleNomina.fecha_creacion).toLocaleDateString()}</p>
+        <div style={{ padding: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2>Detalle de Nómina #{detalleNomina.id_detalle}</h2>
+                <div>
+                    <Button 
+                        onClick={handleVerReporte}
+                        className="app-button"
+                        style={{ marginRight: '10px' }}
+                    >
+                        <FiFileText style={{ marginRight: '5px' }} />
+                        Ver Reporte Detallado
+                    </Button>
+                    <Button onClick={() => navigate(-1)} className="app-button">
+                        Volver
+                    </Button>
+                </div>
             </div>
 
-            {/* Sección de Información del Empleado (relación belongTo) */}
-            <div className="detalle-nomina-section">
-                <h3>Información del Empleado</h3>
-                {detalleNomina.empleado ? (
-                    <div>
-                         {/* Accede a las propiedades del objeto empleado anidado */}
-                        <p><strong>ID Empleado:</strong> {detalleNomina.empleado.id_empleado}</p>
-                        <p><strong>Nombre:</strong> {detalleNomina.empleado.nombre} {detalleNomina.empleado.apellido}</p>
-                        <p><strong>Código:</strong> {detalleNomina.empleado.codigo_empleado}</p>
-                        <p><strong>DPI:</strong> {detalleNomina.empleado.dpi}</p>
-                        {/* ... muestra otros campos relevantes del empleado */}
+            <div className="detalle-nomina-detail-page"> {/* Clase CSS para estilizar */}
+                <h2>Detalle de Nómina #{detalleNomina.id_detalle}</h2>
+
+                {/* Sección de Información Principal del Detalle de Nómina */}
+                <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
+                    <h3>Información General</h3>
+                    <div className="info-list">
+                        <div className="info-item">
+                            <strong>Salario Base:</strong> Q{parseFloat(detalleNomina.salario_base || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>Días Trabajados:</strong> {detalleNomina.dias_trabajados}
+                        </div>
+                        <div className="info-item">
+                            <strong>Horas Extra Registradas:</strong> {detalleNomina.horas_extra}
+                        </div>
+                        <div className="info-item">
+                            <strong>Monto Horas Extra:</strong> Q{parseFloat(detalleNomina.monto_horas_extra || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>Bonificación Incentivo:</strong> Q{parseFloat(detalleNomina.bonificacion_incentivo || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>Otros Ingresos:</strong> Q{parseFloat(detalleNomina.otros_ingresos || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>Total Ingresos:</strong> Q{parseFloat(detalleNomina.total_ingresos || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>IGSS Laboral:</strong> Q{parseFloat(detalleNomina.igss_laboral || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>ISR:</strong> Q{parseFloat(detalleNomina.isr || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>Otros Descuentos:</strong> Q{parseFloat(detalleNomina.otros_descuentos || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>Total Descuentos:</strong> Q{parseFloat(detalleNomina.total_descuentos || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>Líquido a Recibir:</strong> Q{parseFloat(detalleNomina.liquido_recibir || 0).toFixed(2)}
+                        </div>
+                        <div className="info-item">
+                            <strong>Observaciones:</strong> {detalleNomina.observaciones || 'N/A'}
+                        </div>
+                        <div className="info-item">
+                            <strong>Activo:</strong> {detalleNomina.activo ? 'Sí' : 'No'}
+                        </div>
+                        <div className="info-item">
+                            <strong>Fecha Creación:</strong> {new Date(detalleNomina.fecha_creacion).toLocaleDateString()}
+                        </div>
                     </div>
-                ) : (
-                    <p>Información del empleado no disponible.</p> // Maneja el caso si la relación es null
-                )}
+                </div>
+
+                {/* Sección de Información del Empleado (relación belongTo) */}
+                <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
+                    <h3>Información del Empleado</h3>
+                    {detalleNomina.empleado ? (
+                        <div className="info-list">
+                            <div className="info-item">
+                                <strong>ID Empleado:</strong> {detalleNomina.empleado.id_empleado}
+                            </div>
+                            <div className="info-item">
+                                <strong>Nombre:</strong> {detalleNomina.empleado.nombre} {detalleNomina.empleado.apellido}
+                            </div>
+                            <div className="info-item">
+                                <strong>Código:</strong> {detalleNomina.empleado.codigo_empleado}
+                            </div>
+                            <div className="info-item">
+                                <strong>DPI:</strong> {detalleNomina.empleado.dpi}
+                            </div>
+                        </div>
+                    ) : (
+                        <p>Información del empleado no disponible.</p> // Maneja el caso si la relación es null
+                    )}
+                </div>
+
+                {/* Sección de Información de la Nómina (relación belongTo) */}
+                <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
+                     <h3>Información de la Nómina</h3>
+                     {detalleNomina.nomina ? (
+                         <div className="info-list">
+                             <div className="info-item">
+                                 <strong>ID Nómina:</strong> {detalleNomina.nomina.id_nomina}
+                             </div>
+                             <div className="info-item">
+                                 <strong>Descripción:</strong> {detalleNomina.nomina.descripcion}
+                             </div>
+                              <div className="info-item">
+                                 <strong>Estado:</strong> {detalleNomina.nomina.estado}
+                             </div>
+                         </div>
+                     ) : (
+                         <p>Información de la nómina no disponible.</p> // Maneja el caso si la relación es null
+                     )}
+                 </div>
+
+                {/* Sección de Liquidación de Viático Incluida (relación hasOne) */}
+                 <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
+                     <h3>Liquidación de Viático Incluida</h3>
+                     {detalleNomina.liquidacion_viatico_incluida ? (
+                         <div className="info-list">
+                             <div className="info-item">
+                                 <strong>ID Liquidación:</strong> {detalleNomina.liquidacion_viatico_incluida.id_liquidacion}
+                             </div>
+                             <div className="info-item">
+                                 <strong>Fecha Liquidación:</strong> {new Date(detalleNomina.liquidacion_viatico_incluida.fecha_liquidacion).toLocaleDateString()}
+                             </div>
+                             <div className="info-item">
+                                 <strong>Monto Total Gastado:</strong> Q{parseFloat(detalleNomina.liquidacion_viatico_incluida.monto_total_gastado || 0).toFixed(2)}
+                             </div>
+                             <div className="info-item">
+                                 <strong>Saldo a Favor Empresa:</strong> Q{parseFloat(detalleNomina.liquidacion_viatico_incluida.saldo_favor_empresa || 0).toFixed(2)}
+                             </div>
+                             <div className="info-item">
+                                 <strong>Saldo a Favor Empleado:</strong> Q{parseFloat(detalleNomina.liquidacion_viatico_incluida.saldo_favor_empleado || 0).toFixed(2)}
+                             </div>
+                         </div>
+                     ) : (
+                         <p>No hay liquidación de viático incluida en este detalle de nómina.</p> // Maneja el caso si la relación es null
+                     )}
+                 </div>
+
+
+                {/* Sección de Conceptos Aplicados (relación hasMany - usando Tabla) */}
+                <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
+                    <h3>Conceptos Aplicados ({detalleNomina.conceptos_aplicados?.length || 0})</h3> {/* Muestra el conteo */}
+                    {detalleNomina.conceptos_aplicados && detalleNomina.conceptos_aplicados.length > 0 ? (
+                        // Pasa el array anidado 'conceptos_aplicados' como data a la tabla
+                        <Table columns={conceptosAplicadosColumns} data={detalleNomina.conceptos_aplicados} />
+                    ) : (
+                        <p>No hay conceptos aplicados para este detalle.</p> // Mensaje si no hay datos relacionados
+                    )}
+                </div>
+
+                 {/* Sección de Pagos de Préstamo Asociados (relación hasMany - usando Tabla) */}
+                 <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
+                     <h3>Pagos de Préstamo Asociados ({detalleNomina.pagos_prestamo_asociados?.length || 0})</h3>
+                     {detalleNomina.pagos_prestamo_asociados && detalleNomina.pagos_prestamo_asociados.length > 0 ? (
+                         // Pasa el array anidado 'pagos_prestamo_asociados' como data a la tabla
+                         <Table columns={pagosPrestamoColumns} data={detalleNomina.pagos_prestamo_asociados} />
+                     ) : (
+                         <p>No hay pagos de préstamo asociados a este detalle.</p>
+                     )}
+                 </div>
+
+                {/* Sección de Horas Extras Pagadas (relación hasMany - usando Tabla) */}
+                 <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
+                     <h3>Horas Extras Pagadas ({detalleNomina.horas_extras_pagadas?.length || 0})</h3>
+                     {detalleNomina.horas_extras_pagadas && detalleNomina.horas_extras_pagadas.length > 0 ? (
+                         // Pasa el array anidado 'horas_extras_pagadas' como data a la tabla
+                         <Table columns={horasExtrasColumns} data={detalleNomina.horas_extras_pagadas} />
+                     ) : (
+                         <p>No hay horas extras pagadas asociadas a este detalle.</p>
+                     )}
+                 </div>
+
+                 {/* Repite para otras relaciones hasMany si las incluyes y necesitas mostrarlas en tablas separadas */}
+                 {/* Por ejemplo, si LiquidacionViatico tuviera hasMany a DetalleLiquidacionViatico y lo incluyeras */}
+                 {/*
+                 <div className="detalle-nomina-section">
+                     <h3>Detalles de Liquidación de Viático ({detalleNomina.liquidacion_viatico_incluida?.detalles_liquidacion?.length || 0})</h3>
+                      {detalleNomina.liquidacion_viatico_incluida?.detalles_liquidacion && detalleNomina.liquidacion_viatico_incluida.detalles_liquidacion.length > 0 ? (
+                          <Table data={detalleNomina.liquidacion_viatico_incluida.detalles_liquidacion} columns={tusColumnasDeDetalleLiquidacion} />
+                      ) : (
+                         <p>No hay detalles para esta liquidación de viático.</p>
+                      )}
+                 </div>
+                 */}
+
+
             </div>
-
-            {/* Sección de Información de la Nómina (relación belongTo) */}
-            <div className="detalle-nomina-section">
-                 <h3>Información de la Nómina</h3>
-                 {detalleNomina.nomina ? (
-                     <div>
-                         {/* Accede a las propiedades del objeto nomina anidado */}
-                         <p><strong>ID Nómina:</strong> {detalleNomina.nomina.id_nomina}</p>
-                         <p><strong>Descripción:</strong> {detalleNomina.nomina.descripcion}</p>
-                          <p><strong>Estado:</strong> {detalleNomina.nomina.estado}</p>
-                         {/* ... muestra otros campos relevantes de la nómina */}
-                     </div>
-                 ) : (
-                     <p>Información de la nómina no disponible.</p> // Maneja el caso si la relación es null
-                 )}
-             </div>
-
-            {/* Sección de Liquidación de Viático Incluida (relación hasOne) */}
-             <div className="detalle-nomina-section">
-                 <h3>Liquidación de Viático Incluida</h3>
-                 {detalleNomina.liquidacion_viatico_incluida ? (
-                     <div>
-                         {/* Accede a las propiedades del objeto liquidacionViatico anidado */}
-                         <p><strong>ID Liquidación:</strong> {detalleNomina.liquidacion_viatico_incluida.id_liquidacion}</p>
-                         <p><strong>Fecha Liquidación:</strong> {new Date(detalleNomina.liquidacion_viatico_incluida.fecha_liquidacion).toLocaleDateString()}</p>
-                         <p><strong>Monto Total Gastado:</strong> {detalleNomina.liquidacion_viatico_incluida.monto_total_gastado}</p>
-                         <p><strong>Saldo a Favor Empresa:</strong> {detalleNomina.liquidacion_viatico_incluida.saldo_favor_empresa}</p>
-                         <p><strong>Saldo a Favor Empleado:</strong> {detalleNomina.liquidacion_viatico_incluida.saldo_favor_empleado}</p>
-                         {/* ... muestra otros campos relevantes */}
-                     </div>
-                 ) : (
-                     <p>No hay liquidación de viático incluida en este detalle de nómina.</p> // Maneja el caso si la relación es null
-                 )}
-             </div>
-
-
-            {/* Sección de Conceptos Aplicados (relación hasMany - usando Tabla) */}
-            <div className="detalle-nomina-section">
-                <h3>Conceptos Aplicados ({detalleNomina.conceptos_aplicados?.length || 0})</h3> {/* Muestra el conteo */}
-                {detalleNomina.conceptos_aplicados && detalleNomina.conceptos_aplicados.length > 0 ? (
-                    // Pasa el array anidado 'conceptos_aplicados' como data a la tabla
-                    <Table data={detalleNomina.conceptos_aplicados} columns={conceptosAplicadosColumns} />
-                ) : (
-                    <p>No hay conceptos aplicados para este detalle.</p> // Mensaje si no hay datos relacionados
-                )}
-            </div>
-
-             {/* Sección de Pagos de Préstamo Asociados (relación hasMany - usando Tabla) */}
-             <div className="detalle-nomina-section">
-                 <h3>Pagos de Préstamo Asociados ({detalleNomina.pagos_prestamo_asociados?.length || 0})</h3>
-                 {detalleNomina.pagos_prestamo_asociados && detalleNomina.pagos_prestamo_asociados.length > 0 ? (
-                     // Pasa el array anidado 'pagos_prestamo_asociados' como data a la tabla
-                     <Table data={detalleNomina.pagos_prestamo_asociados} columns={pagosPrestamoColumns} />
-                 ) : (
-                     <p>No hay pagos de préstamo asociados a este detalle.</p>
-                 )}
-             </div>
-
-            {/* Sección de Horas Extras Pagadas (relación hasMany - usando Tabla) */}
-             <div className="detalle-nomina-section">
-                 <h3>Horas Extras Pagadas ({detalleNomina.horas_extras_pagadas?.length || 0})</h3>
-                 {detalleNomina.horas_extras_pagadas && detalleNomina.horas_extras_pagadas.length > 0 ? (
-                     // Pasa el array anidado 'horas_extras_pagadas' como data a la tabla
-                     <Table data={detalleNomina.horas_extras_pagadas} columns={horasExtrasColumns} />
-                 ) : (
-                     <p>No hay horas extras pagadas asociadas a este detalle.</p>
-                 )}
-             </div>
-
-             {/* Repite para otras relaciones hasMany si las incluyes y necesitas mostrarlas en tablas separadas */}
-             {/* Por ejemplo, si LiquidacionViatico tuviera hasMany a DetalleLiquidacionViatico y lo incluyeras */}
-             {/*
-             <div className="detalle-nomina-section">
-                 <h3>Detalles de Liquidación de Viático ({detalleNomina.liquidacion_viatico_incluida?.detalles_liquidacion?.length || 0})</h3>
-                  {detalleNomina.liquidacion_viatico_incluida?.detalles_liquidacion && detalleNomina.liquidacion_viatico_incluida.detalles_liquidacion.length > 0 ? (
-                      <Table data={detalleNomina.liquidacion_viatico_incluida.detalles_liquidacion} columns={tusColumnasDeDetalleLiquidacion} />
-                  ) : (
-                     <p>No hay detalles para esta liquidación de viático.</p>
-                  )}
-             </div>
-             */}
-
-
         </div>
     );
 }
