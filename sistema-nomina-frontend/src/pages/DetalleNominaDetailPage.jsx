@@ -130,6 +130,17 @@ function DetalleNominaDetailPage() {
             },
         },
     ];
+
+    // Función auxiliar para parsear el detalle de ausencias
+    const parsearDetalleAusencias = (detalleAusenciasStr) => {
+        try {
+            return JSON.parse(detalleAusenciasStr || '[]');
+        } catch (e) {
+            console.error('Error al parsear detalle de ausencias:', e);
+            return [];
+        }
+    };
+
     // --- Renderizado de la información ---
     return (
         <div style={{ padding: '20px' }}>
@@ -153,57 +164,25 @@ function DetalleNominaDetailPage() {
             <div className="detalle-nomina-detail-page"> {/* Clase CSS para estilizar */}
                 <h2>Detalle de Nómina #{detalleNomina.id_detalle}</h2>
 
-                {/* Sección de Información Principal del Detalle de Nómina */}
-                <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
-                    <h3>Información General</h3>
-                    <div className="info-list">
-                        <div className="info-item">
-                            <strong>Salario Base:</strong> Q{parseFloat(detalleNomina.salario_base || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>Días Trabajados:</strong> {detalleNomina.dias_trabajados}
-                        </div>
-                        <div className="info-item">
-                            <strong>Horas Extra Registradas:</strong> {detalleNomina.horas_extra}
-                        </div>
-                        <div className="info-item">
-                            <strong>Monto Horas Extra:</strong> Q{parseFloat(detalleNomina.monto_horas_extra || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>Bonificación Incentivo:</strong> Q{parseFloat(detalleNomina.bonificacion_incentivo || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>Otros Ingresos:</strong> Q{parseFloat(detalleNomina.otros_ingresos || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>Total Ingresos:</strong> Q{parseFloat(detalleNomina.total_ingresos || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>IGSS Laboral:</strong> Q{parseFloat(detalleNomina.igss_laboral || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>ISR:</strong> Q{parseFloat(detalleNomina.isr || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>Otros Descuentos:</strong> Q{parseFloat(detalleNomina.otros_descuentos || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>Total Descuentos:</strong> Q{parseFloat(detalleNomina.total_descuentos || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>Líquido a Recibir:</strong> Q{parseFloat(detalleNomina.liquido_recibir || 0).toFixed(2)}
-                        </div>
-                        <div className="info-item">
-                            <strong>Observaciones:</strong> {detalleNomina.observaciones || 'N/A'}
-                        </div>
-                        <div className="info-item">
-                            <strong>Activo:</strong> {detalleNomina.activo ? 'Sí' : 'No'}
-                        </div>
-                        <div className="info-item">
-                            <strong>Fecha Creación:</strong> {new Date(detalleNomina.fecha_creacion).toLocaleDateString()}
-                        </div>
-                    </div>
-                </div>
+            {/* Sección de Información Principal del Detalle de Nómina */}
+            <div className="detalle-nomina-section">
+                <h3>Información General</h3>
+                <p><strong>Salario Base:</strong> {detalleNomina.salario_base}</p>
+                <p><strong>Días Trabajados:</strong> {detalleNomina.dias_trabajados}</p>
+                <p><strong>Horas Extra Registradas:</strong> {detalleNomina.horas_extra}</p>
+                <p><strong>Monto Horas Extra:</strong> {detalleNomina.monto_horas_extra}</p>
+                <p><strong>Bonificación Incentivo:</strong> {detalleNomina.bonificacion_incentivo}</p>
+                <p><strong>Otros Ingresos:</strong> {detalleNomina.otros_ingresos}</p>
+                <p><strong>Total Ingresos:</strong> {detalleNomina.total_ingresos}</p>
+                <p><strong>IGSS Laboral:</strong> {detalleNomina.igss_laboral}</p>
+                <p><strong>ISR:</strong> {detalleNomina.isr}</p>
+                <p><strong>Otros Descuentos:</strong> {detalleNomina.otros_descuentos}</p>
+                <p><strong>Total Descuentos:</strong> {detalleNomina.total_descuentos}</p>
+                <p><strong>Líquido a Recibir:</strong> {detalleNomina.liquido_recibir}</p>
+                <p><strong>Observaciones:</strong> {detalleNomina.observaciones || 'N/A'}</p>
+                <p><strong>Activo:</strong> {detalleNomina.activo ? 'Sí' : 'No'}</p>
+                <p><strong>Fecha Creación:</strong> {new Date(detalleNomina.fecha_creacion).toLocaleDateString()}</p>
+            </div>
 
                 {/* Sección de Información del Empleado (relación belongTo) */}
                 <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
