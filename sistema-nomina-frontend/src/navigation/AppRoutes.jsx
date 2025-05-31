@@ -32,6 +32,7 @@ import DetalleNominaListPage from '../pages/DetalleNominaListPage.jsx'; // <-- I
 import LiquidacionList from '../components/Forms/LiquidacionList';
 import LiquidacionForm from '../components/Forms/LiquidacionForm';
 import LiquidacionDetail from '../pages/LiquidacionDetail';
+import ReporteDetalleNomina from '../pages/ReporteDetalleNomina.jsx';
 
 
 
@@ -82,9 +83,15 @@ function AppRoutes() {
       <Route path="/logs" element={<RutaPrivada><LogsSistemaPage /></RutaPrivada>} />
 
        {/* Rutas de Nómina */}
+<<<<<<< HEAD
        <Route path="/nominas" element={<RutaPrivada><NominasPage /></RutaPrivada>} />
        <Route path="/nominas/:id" element={<RutaPrivada><DetalleNominaPage /></RutaPrivada>} />
 
+=======
+       <Route path="/nominas" element={<NominasPage />} />
+       <Route path="/nominas/:id" element={<DetalleNominaPage />} />
+       <Route path="/reportes/nomina/:id" element={<ReporteDetalleNomina />} />
+>>>>>>> 84e9421a18003556d595363d5bcfdd710689d463
 
        {/* Ruta de Puestos */}
        <Route path="/puestos" element={<RutaPrivada><PuestosPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión de Puestos */}

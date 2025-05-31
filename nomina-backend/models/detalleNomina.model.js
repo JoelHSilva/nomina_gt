@@ -82,6 +82,22 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
             allowNull: false
+        },
+        dias_ausencia: {
+            type: DataTypes.DECIMAL(5, 2),
+            defaultValue: 0,
+            allowNull: false,
+            comment: 'Días de ausencia que afectan el salario en el período'
+        },
+        dias_totales_periodo: {
+            type: DataTypes.DECIMAL(5, 2),
+            allowNull: false,
+            comment: 'Total de días hábiles en el período'
+        },
+        detalle_ausencias: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            comment: 'JSON con el detalle de las ausencias aplicadas en el período'
         }
     }, {
         sequelize,

@@ -16,7 +16,11 @@
     "@emotion/styled": "^11.14.0",
     "axios": "^1.9.0",
     "framer-motion": "^12.12.1",
+<<<<<<< HEAD
     "lucide-react": "^0.511.0",
+=======
+    "html2pdf.js": "^0.10.3",
+>>>>>>> 84e9421a18003556d595363d5bcfdd710689d463
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",

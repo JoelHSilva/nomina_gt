@@ -21,11 +21,17 @@ function AusenciasPage() {
     { key: 'id_ausencia', title: 'ID' },
     // --- MODIFICACIÓN CLAVE AQUÍ ---
     {
-      key: 'empleado', // <-- La clave ahora es 'empleado' (el alias de la relación del backend)
+      key: 'empleado',
       title: 'Empleado',
-      // <-- La función render accede al objeto `empleado` para mostrar nombre y apellido
-      render: (empleado, item) => empleado ? `${empleado.nombre} ${empleado.apellido}` : 'Empleado no disponible'
-    },
+      render: (empleado, item) => {
+        console.log('Renderizando empleado:', empleado, 'Item completo:', item);
+        if (!empleado) {
+          console.log('No hay datos de empleado para el item:', item);
+          return 'Empleado no disponible';
+        }
+        return `${empleado.nombre} ${empleado.apellido}`;
+      }
+    },
     // --- FIN MODIFICACIÓN CLAVE ---
     { key: 'fecha_inicio', title: 'Fecha Inicio', render: (value) => value ? new Date(value).toLocaleDateString() : 'N/A' },
     { key: 'fecha_fin', title: 'Fecha Fin', render: (value) => value ? new Date(value).toLocaleDateString() : 'N/A' },
@@ -68,6 +74,7 @@ function AusenciasPage() {
        // Asegúrate de que tu backend une los datos del empleado para mostrar el nombre
       // Esta llamada ahora traerá el objeto empleado anidado gracias al cambio en el backend
       const data = await api.getAll('AUSENCIAS'); // Usar la clave string
+      console.log('Datos de ausencias recibidos:', data); // Agregar este log
       setAusencias(data);
     } catch (err) {
       setError('Error al cargar las ausencias y permisos.');

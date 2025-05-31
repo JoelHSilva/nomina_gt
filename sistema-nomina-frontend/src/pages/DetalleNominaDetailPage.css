@@ -1,0 +1,43 @@
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item strong {
+    color: var(--color-text-dark);
+}
+
+/* Estilos para impresión */
+@media print {
+    .app-button {
+        display: none;
+    }
+
+    div[style*="border: 1px solid #ccc"] {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+    }
+
+    div[style*="padding: 20px"] {
+        padding: 0;
+    }
+
+    h3 {
+        background-color: #f8f9fa !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+} 

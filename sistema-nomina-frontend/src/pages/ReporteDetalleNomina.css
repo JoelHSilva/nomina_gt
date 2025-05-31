@@ -1,0 +1,181 @@
+.reporte-detalle-nomina {
+    padding: 20px;
+}
+
+.reporte-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.reporte-header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: var(--color-text-dark);
+}
+
+.reporte-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--color-text-dark);
+}
+
+.card-body {
+    padding: 16px;
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item strong {
+    color: var(--color-text-dark);
+}
+
+.summary-divider {
+    border-top: 2px solid var(--color-border);
+    margin: 10px 0;
+}
+
+.text-bold {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: var(--color-primary);
+}
+
+.error-container {
+    text-align: center;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+}
+
+.error-container h2 {
+    color: var(--color-danger);
+    margin-bottom: 10px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Estilos para impresión y PDF */
+@media print {
+    .reporte-actions,
+    .button-group {
+        display: none;
+    }
+
+    .app-button {
+        display: none !important;
+    }
+
+    div[style*="border: 1px solid #ccc"] {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    div[style*="padding: 20px"] {
+        padding: 0 !important;
+    }
+
+    h3 {
+        background-color: #f8f9fa !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Asegurar que las tablas se muestren correctamente */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    th, td {
+        border: 1px solid #ddd !important;
+        padding: 8px !important;
+        text-align: left !important;
+    }
+
+    th {
+        background-color: #f8f9fa !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Evitar que los elementos se corten entre páginas */
+    .info-list, .info-item {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
+/* Estilos específicos para el PDF */
+@media screen {
+    /* Asegurar que el contenido sea legible en el PDF */
+    .info-item strong {
+        min-width: 200px;
+    }
+
+    /* Mejorar la legibilidad de las tablas */
+    table {
+        width: 100%;
+        margin-bottom: 1rem;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+
+    /* Asegurar que los valores monetarios estén alineados a la derecha */
+    td[data-type="currency"] {
+        text-align: right;
+    }
+} 
