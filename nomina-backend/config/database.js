@@ -4,7 +4,7 @@ const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize({
   database: 'nomina_guatemalteca',
   username: 'root', // Cambiar según tu configuración
-  password: 'canche2003', // Cambiar según tu configuración
+  password: '295900', // Cambiar según tu configuración
   host: 'localhost',
   dialect: 'mysql',
   port: 3306,

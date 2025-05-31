@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client'; // Importa desde react-dom/client
 import App from './App.jsx'; // Importa el componente App
 import './index.css'; // Importa estilos globales si los tienes
+import './Styles/styles.css';
 
 // Usa createRoot para montar la aplicación (API moderna de React 18+)
 ReactDOM.createRoot(document.getElementById('root')).render(

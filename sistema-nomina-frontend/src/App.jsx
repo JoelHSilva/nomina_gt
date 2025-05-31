@@ -10,15 +10,16 @@ import './App.css';
 const Layout = () => {
   const location = useLocation();
   const isLogin = location.pathname === '/login';
+  const isPublicPage = ['/login', '/register', '/error'].includes(location.pathname); // Añadir más rutas públicas si es necesario
 
   return (
     <div className="app-container">
-      {!isLogin && <Header />}
-      {!isLogin && <Navigation />}
+      {!isPublicPage && <Header />}
+      {!isPublicPage && <Navigation />}
       <main className="main-content">
         <AppRoutes />
       </main>
-      {!isLogin && <Footer />}
+      {!isPublicPage && <Footer />}
     </div>
   );
 };

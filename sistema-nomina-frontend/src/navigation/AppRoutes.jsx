@@ -1,6 +1,13 @@
 // src/navigation/AppRoutes.jsx
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import RutaPrivada from './Rutaprivada';
+
+
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+
+
+import Login from '../pages/Login.jsx'; // Importa el componente de Login
 
 import HomePage from '../pages/HomePage.jsx';
 import DepartamentosPage from '../pages/DepartamentosPage.jsx';
@@ -25,7 +32,6 @@ import DetalleNominaListPage from '../pages/DetalleNominaListPage.jsx'; // <-- I
 import LiquidacionList from '../components/Forms/LiquidacionList';
 import LiquidacionForm from '../components/Forms/LiquidacionForm';
 import LiquidacionDetail from '../pages/LiquidacionDetail';
-
 
 
 
@@ -63,59 +69,65 @@ function AppRoutes() {
 
   return (
     <Routes>
+
+      {/* Ruta pública para login */}
+      <Route path="/login" element={<Login />} />
+
+
       {/* Rutas principales */}
       {/* Rutas principales */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/departamentos" element={<DepartamentosPage />} />
-      <Route path="/empleados" element={<EmpleadosPage />} />
-      <Route path="/logs" element={<LogsSistemaPage />} />
+      <Route path="/" element={usuario ? <HomePage /> : <Navigate to="/login" replace />} />
+      <Route path="/departamentos" element={<RutaPrivada><DepartamentosPage /></RutaPrivada>} />
+      <Route path="/empleados" element={<RutaPrivada><EmpleadosPage /></RutaPrivada>} />
+      <Route path="/logs" element={<RutaPrivada><LogsSistemaPage /></RutaPrivada>} />
 
        {/* Rutas de Nómina */}
-       <Route path="/nominas" element={<NominasPage />} />
-       <Route path="/nominas/:id" element={<DetalleNominaPage />} />
+       <Route path="/nominas" element={<RutaPrivada><NominasPage /></RutaPrivada>} />
+       <Route path="/nominas/:id" element={<RutaPrivada><DetalleNominaPage /></RutaPrivada>} />
+
 
        {/* Ruta de Puestos */}
-       <Route path="/puestos" element={<PuestosPage />} /> {/* <-- Ruta para la gestión de Puestos */}
+       <Route path="/puestos" element={<RutaPrivada><PuestosPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión de Puestos */}
 
       {/* Ruta de Periodos de Pago */}
-       <Route path="/periodos-pago" element={<PeriodosPagoPage />} /> {/* <-- Ruta para la gestión */}
+       <Route path="/periodos-pago" element={<RutaPrivada><PeriodosPagoPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión */}
 
        {/* Ruta de Conceptos de Pago */}
-       <Route path="/conceptos-pago" element={<ConceptosPagoPage />} /> {/* <-- Ruta para la gestión */}
+       <Route path="/conceptos-pago" element={<RutaPrivada><ConceptosPagoPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión */}
 
         {/* Ruta de Configuración Fiscal */}
-        <Route path="/configuracion-fiscal" element={<ConfiguracionFiscalPage />} /> {/* <-- Ruta para la gestión */}
+        <Route path="/configuracion-fiscal" element={<RutaPrivada><ConfiguracionFiscalPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión */}
 
         {/* Ruta de Préstamos */}
-        <Route path="/prestamos" element={<PrestamosPage />} /> {/* <-- Ruta para la gestión */}
+        <Route path="/prestamos" element={<RutaPrivada><PrestamosPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión */}
 
         {/* Ruta de Vacaciones */}
-        <Route path="/vacaciones" element={<VacacionesPage />} /> {/* <-- Ruta para la gestión */}
+        <Route path="/vacaciones" element={<RutaPrivada><VacacionesPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión */}
 
         {/* Ruta de Ausencias */}
-        <Route path="/ausencias" element={<AusenciasPage />} /> {/* <-- Ruta para la gestión */}
+        <Route path="/ausencias" element={<RutaPrivada><AusenciasPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión */}
 
 
         {/* Ruta de Horas Extras */}
-        <Route path="/horas-extras" element={<HorasExtrasPage />} /> {/* <-- Ruta para la gestión */}
+        <Route path="/horas-extras" element={<RutaPrivada><HorasExtrasPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión */}
 
        {/* Rutas de Viáticos - Catálogos */}
-       <Route path="/tipos-viaticos" element={<TiposViaticosPage />} /> {/* <-- Ruta */}
-       <Route path="/destinos-viaticos" element={<DestinosViaticosPage />} /> {/* <-- Ruta */}
+       <Route path="/tipos-viaticos" element={<RutaPrivada><TiposViaticosPage /></RutaPrivada>} /> {/* <-- Ruta */}
+       <Route path="/destinos-viaticos" element={<RutaPrivada><DestinosViaticosPage /></RutaPrivada>} /> {/* <-- Ruta */}
 
         {/* Ruta de Usuarios */}
-        <Route path="/usuarios" element={<UsuariosPage />} /> {/* <-- Ruta para la gestión */}
+        <Route path="/usuarios" element={<RutaPrivada><UsuariosPage /></RutaPrivada>} /> {/* <-- Ruta para la gestión */}
 
 
               {/* Ejemplo de ruta para la página de lista de detalles de nómina */}
-       <Route path="/detalles-nomina" element={<DetalleNominaListPage />} /> 
+       <Route path="/detalles-nomina" element={<RutaPrivada><DetalleNominaListPage /></RutaPrivada>} /> 
 
       {/* Ruta para la página de detalle de un DetalleNomina específico */}
       {/* El :id indica que esta parte de la URL es un parámetro */}
-      <Route path="/detalles-nomina/:id" element={<DetalleNominaDetailPage />} />
-      <Route path="/liquidaciones" element={<LiquidacionList />} />
-      <Route path="/liquidaciones/nueva" element={<LiquidacionForm />} />
-      <Route path="/liquidaciones/:id" element={<LiquidacionDetail />} />
+      <Route path="/detalles-nomina/:id" element={<RutaPrivada><DetalleNominaDetailPage /></RutaPrivada>} />
+      <Route path="/liquidaciones" element={<RutaPrivada><LiquidacionList /></RutaPrivada>} />
+      <Route path="/liquidaciones/nueva" element={<RutaPrivada><LiquidacionForm /></RutaPrivada>} />
+      <Route path="/liquidaciones/:id" element={<RutaPrivada><LiquidacionDetail /></RutaPrivada>} />
       
 
 
