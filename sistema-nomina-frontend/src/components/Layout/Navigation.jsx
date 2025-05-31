@@ -1,8 +1,10 @@
-// src/components/Layout/Navigation.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import '../../Styles/styles.css';
 
 function Navigation() {
+  const navigate = useNavigate();
+
   const navLinks = [
     { to: '/', label: 'Inicio' },
     { to: '/departamentos', label: 'Departamentos' },
@@ -26,20 +28,30 @@ function Navigation() {
 
     { to: '/usuarios', label: 'Usuarios' }, // <-- Asegúrate de que este enlace está activo
     { to: '/logs', label: 'Logs' },
-    // Agrega/descomenta más enlaces según las páginas que implementes
   ];
+
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('usuario');
+    navigate('/login');
+  };
 
   return (
     <nav className="app-nav">
-      <ul className="app-nav-list">
+      <ul>
         {navLinks.map((link) => (
           <li key={link.to}>
-            <Link to={link.to}>
+            <Link to={link.to} className="nav-link">
               {link.label}
             </Link>
           </li>
         ))}
       </ul>
+      <div className="logout-container">
+        <button onClick={logout} className="logout-button">
+          Cerrar sesión
+        </button>
+      </div>
     </nav>
   );
 }

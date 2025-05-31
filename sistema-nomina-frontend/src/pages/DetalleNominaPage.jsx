@@ -47,7 +47,16 @@ function DetalleNominaPage() {
        }
     },
     { key: 'salario_base', title: 'Salario Base (Q)', render: (value) => `Q ${parseFloat(value || 0).toFixed(2)}` },
-    { key: 'dias_trabajados', title: 'Días Trab.', render: (value) => parseFloat(value || 0).toFixed(1) },
+    { 
+        key: 'dias_trabajados', 
+        title: 'Días Trab.', 
+        render: (value, item) => `${parseFloat(value || 0).toFixed(1)} de ${parseFloat(item.dias_totales_periodo || 0).toFixed(1)}` 
+    },
+    { 
+        key: 'dias_ausencia', 
+        title: 'Días Ausencia', 
+        render: (value) => parseFloat(value || 0).toFixed(1) 
+    },
     { key: 'horas_extra', title: 'Horas Extra', render: (value) => parseFloat(value || 0).toFixed(2) },
     { key: 'monto_horas_extra', title: 'Monto Horas Extra', render: (value) => `Q ${parseFloat(value || 0).toFixed(2)}` },
     { key: 'bonificacion_incentivo', title: 'Bonif. Incentivo', render: (value) => `Q ${parseFloat(value || 0).toFixed(2)}` },
@@ -58,11 +67,28 @@ function DetalleNominaPage() {
     { key: 'otros_descuentos', title: 'Otros Descuentos', render: (value) => `Q ${parseFloat(value || 0).toFixed(2)}` },
     { key: 'total_descuentos', title: 'Total Descuentos', render: (value) => `Q ${parseFloat(value || 0).toFixed(2)}` },
     { key: 'liquido_recibir', title: 'Líquido a Recibir', render: (value) => `Q ${parseFloat(value || 0).toFixed(2)}` },
-     { key: 'observaciones', title: 'Observaciones', render: (value) => value || 'N/A' }, // Añadido según tu estructura
-      // Añadir columnas para campos directamente en el detalle si son útiles (ej: id_nomina, fecha_creacion del detalle)
-      { key: 'id_detalle', title: 'ID Detalle' },
-      { key: 'fecha_creacion', title: 'Fecha Creación Detalle', render: (value) => value ? new Date(value).toLocaleDateString() : 'N/A' },
-      { key: 'activo', title: 'Detalle Activo?', render: (value) => (value ? 'Sí' : 'No') },
+    { 
+        key: 'observaciones', 
+        title: 'Observaciones', 
+        render: (value) => value || 'N/A',
+        // Opcional: Si quieres mostrar un tooltip con el detalle de ausencias
+        tooltip: (value, item) => {
+            try {
+                const ausencias = JSON.parse(item.detalle_ausencias || '[]');
+                if (ausencias.length > 0) {
+                    return ausencias.map(a => 
+                        `${a.tipo} (${a.dias} días)${a.afecta_salario ? ' - Afecta salario' : ''}`
+                    ).join('\n');
+                }
+            } catch (e) {
+                console.error('Error al parsear detalle de ausencias:', e);
+            }
+            return value || 'N/A';
+        }
+    },
+    { key: 'id_detalle', title: 'ID Detalle' },
+    { key: 'fecha_creacion', title: 'Fecha Creación Detalle', render: (value) => value ? new Date(value).toLocaleDateString() : 'N/A' },
+    { key: 'activo', title: 'Detalle Activo?', render: (value) => (value ? 'Sí' : 'No') },
 
     // { // Columna de acciones - Opcional si permites editar detalle por empleado
     //   key: 'detalleActions',

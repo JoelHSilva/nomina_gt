@@ -1,314 +1,68 @@
-/* src/App.css */
-
-/* Variables CSS para una paleta cálida */
-:root {
-  --color-primary: #E95420; /* Naranja/Terracota cálido */
-  --color-secondary: #FFC107; /* Amarillo/Naranja suave */
-  --color-background-light: #f8f4f0; /* Fondo cálido claro */
-  --color-text-dark: #4a4e69; /* Texto oscuro (azul grisáceo cálido) */
-  --color-text-light: #ffffff; /* Texto claro */
-  --color-border: #a39f9a; /* Borde gris cálido */
-  --color-success: #28a745; /* Verde para éxito */
-  --color-danger: #dc3545; /* Rojo para peligro/eliminar */
-  --color-warning: #ffc107; /* Amarillo para advertencia */
-  --color-info: #17a2b8; /* Azul para información */
+/* Encabezado más compacto */
+.app-header {
+  background: linear-gradient(90deg, #0066ff, #3399ff);
+  padding: 10px 0;
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
-/* Reset básico o estilos base */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-background-light); /* Usar color de fondo cálido */
-  color: var(--color-text-dark); /* Usar color de texto oscuro cálido */
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-/* Contenedor principal de la aplicación */
-.app-container {
+/* Barra de navegación principal */
+.app-nav {
+  background: #ffffff;
+  border-bottom: 1px solid #dfe6ef;
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Ocupa al menos el alto de la ventana */
+  align-items: center;
+  padding: 10px 20px 20px 20px;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Estilos del Header */
-.app-header {
-  background-color: var(--color-primary); /* Color primario cálido */
-  color: var(--color-text-light);
-  padding: 15px 20px; /* Ajustar padding */
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Estilos de la Navegación */
-.app-nav {
-  background-color: var(--color-background-light); /* Fondo cálido claro */
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--color-border); /* Borde sutil */
-}
-
+/* Lista de navegación */
 .app-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
   display: flex;
-  flex-wrap: wrap; /* Permite que los enlaces se envuelvan en pantallas pequeñas */
-  gap: 15px; /* Espacio entre enlaces */
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
+/* Enlaces del nav */
 .app-nav a {
+  color: #2e3a59;
+  font-weight: 400;
   text-decoration: none;
-  color: var(--color-text-dark);
-  font-weight: bold;
-  padding: 5px 0;
-  transition: color 0.3s ease; /* Transición suave al pasar el ratón */
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
 .app-nav a:hover {
-  color: var(--color-primary); /* Cambia a color primario al pasar el ratón */
+  background-color: #eef3f9;
+  color: #0066ff;
 }
 
-/* Estilos del Contenido Principal */
-.main-content {
-  padding: 20px;
-  flex-grow: 1; /* Permite que el contenido principal ocupe el espacio restante */
-}
-
-/* Estilos del Footer */
-.app-footer {
-  background-color: var(--color-text-dark); /* Fondo oscuro cálido */
-  color: var(--color-text-light);
-  padding: 15px 20px;
-  text-align: center;
-  margin-top: auto; /* Empuja el footer hacia abajo */
-}
-
-/* Estilos del Botón */
-.app-button {
-  padding: 10px 15px;
-  background-color: var(--color-secondary); /* Color secundario para botones */
-  color: var(--color-text-dark); /* Texto oscuro en botones claros */
+/* Botón de logout centrado debajo del menú */
+.logout-button {
+  background-color: #0066ff;
+  color: white;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s ease, opacity 0.3s ease;
-}
-
-.app-button:hover {
-  background-color: darken(var(--color-secondary), 10%); /* Oscurece al pasar el ratón (necesita preprocesador o ajuste manual) */
-  opacity: 0.9; /* Alternativa simple sin preprocesador */
-}
-
-.app-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Clases para botones de acción específicos */
-.app-button-primary {
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
-}
-.app-button-primary:hover {
-     background-color: darken(var(--color-primary), 10%);
-     opacity: 0.9;
-}
-
-.app-button-danger {
-    background-color: var(--color-danger);
-    color: var(--color-text-light);
-}
-.app-button-danger:hover {
-    background-color: darken(var(--color-danger), 10%);
-    opacity: 0.9;
-}
-
-.app-button-warning {
-    background-color: var(--color-warning);
-    color: var(--color-text-dark);
-}
-.app-button-warning:hover {
-    background-color: darken(var(--color-warning), 10%);
-    opacity: 0.9;
-}
-
-.app-button-info {
-     background-color: var(--color-info);
-     color: var(--color-text-light);
- }
-.app-button-info:hover {
-     background-color: darken(var(--color-info), 10%);
-     opacity: 0.9;
-}
-
-
-/* Estilos del Input (y Select/Textarea si usas el mismo componente base) */
-.app-input-container {
-  margin-bottom: 15px;
-}
-
-.app-input-label {
-  display: block;
-  margin-bottom: 5px;
+  border-radius: 6px;
+  padding: 8px 20px;
   font-weight: bold;
-}
-
-.app-input-field {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  box-sizing: border-box; /* Incluye padding y border en el ancho total */
-  font-size: 1em;
-  color: var(--color-text-dark);
-  background-color: #ffffff;
-}
-
-.app-input-field:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 0.2rem rgba(var(--color-primary-rgb), 0.25); /* Necesita variables RGB o ajustar */
-}
-
-
-/* Estilos de la Tabla */
-.app-table-container {
-    overflow-x: auto; /* Permite scroll horizontal en pantallas pequeñas si la tabla es muy ancha */
-    margin-top: 15px;
-    border: 1px solid var(--color-border); /* Borde alrededor del contenedor de la tabla */
-    border-radius: 4px;
-}
-
-.app-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.app-table th,
-.app-table td {
-  border: 1px solid var(--color-border);
-  padding: 10px; /* Aumentar padding */
-  text-align: left;
-}
-
-.app-table th {
-  background-color: var(--color-background-light); /* Fondo cálido claro */
-  font-weight: bold;
-  color: var(--color-text-dark);
-}
-
-.app-table tbody tr:nth-child(even) { /* Estilo para filas pares */
-  background-color: #fefefe; /* Blanco casi puro */
-}
-
-.app-table tbody tr:hover { /* Estilo al pasar el ratón por una fila */
-    background-color: #fff9f5; /* Un tono más cálido y claro */
-}
-
-
-/* Estilos del Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro semitransparente */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* Asegura que esté por encima de otros elementos */
-}
-
-.modal-content {
-  background-color: #ffffff; /* Fondo blanco */
-  padding: 30px; /* Aumentar padding */
-  border-radius: 8px; /* Bordes más redondeados */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  z-index: 1001;
-  position: relative;
-  min-width: 300px;
-  max-width: 90%;
-  max-height: 90%;
-  overflow-y: auto; /* Permite scroll si el contenido es largo */
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 15px; /* Aumentar padding */
-  margin-bottom: 20px; /* Aumentar margen */
-}
-
-.modal-header h2 {
-    margin: 0; /* Eliminar margen del título */
-    color: var(--color-text-dark);
-}
-
-.modal-close-button {
-  border: none;
-  background: transparent;
-  font-size: 1.5em; /* Aumentar tamaño */
   cursor: pointer;
-  color: var(--color-text-dark);
-  line-height: 1; /* Ajustar altura de línea */
+  transition: background-color 0.3s ease;
 }
 
-.modal-close-button:hover {
-    color: var(--color-danger);
+.logout-button:hover {
+  background-color: #cc0000;
 }
-
-
-/* Estilos responsivos básicos */
-@media (max-width: 768px) {
-  .app-header h1 {
-    font-size: 1.5em; /* Reducir tamaño de título en pantallas pequeñas */
-  }
-
-  .app-nav ul {
-    flex-direction: column; /* Apilar enlaces de navegación */
-    gap: 5px; /* Reducir espacio */
-  }
-
-  .app-nav a {
-      padding: 5px 10px; /* Agregar padding horizontal a enlaces apilados */
-      border-bottom: 1px solid rgba(var(--color-border), 0.5); /* Separador sutil */
-  }
-
-   .app-nav li:last-child a {
-       border-bottom: none; /* Eliminar borde del último enlace */
-   }
-
-  .main-content {
-    padding: 15px; /* Reducir padding en contenido principal */
-  }
-
-  .app-button {
-    width: 100%; /* Botones de bloque en pantallas pequeñas */
-    margin-bottom: 10px; /* Espacio entre botones apilados */
-  }
-
-  /* Asegurar que los botones de acción en la tabla no se apilen mal */
-  .app-table td button {
-      display: inline-block; /* O flex o grid si es necesario */
-      margin-right: 5px;
-      margin-bottom: 5px; /* Espacio si se envuelven */
-      width: auto; /* Ancho automático */
-  }
-
-   .modal-content {
-       padding: 20px; /* Reducir padding del modal en pantallas pequeñas */
-   }
-}
-
-/* Puedes añadir más media queries para diferentes tamaños de pantalla */
