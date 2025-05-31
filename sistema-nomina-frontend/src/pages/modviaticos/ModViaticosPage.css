@@ -1,0 +1,94 @@
+.mod-viaticos-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.btn-new {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-new:hover {
+  background-color: #45a049;
+}
+
+.solicitud-detail {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.detail-info p {
+  margin: 10px 0;
+}
+
+.detail-actions {
+  margin-top: 20px;
+}
+
+.btn-anticipo, .btn-liquidacion, .btn-back {
+  padding: 8px 12px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-anticipo {
+  background-color: #2196F3;
+  color: white;
+}
+
+.btn-liquidacion {
+  background-color: #ff9800;
+  color: white;
+}
+
+.btn-back {
+  background-color: #f44336;
+  color: white;
+}
+
+.status {
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+.status.solicitada {
+  background-color: #ffeb3b;
+  color: #000;
+}
+
+.status.aprobada {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.status.rechazada {
+  background-color: #f44336;
+  color: white;
+}
+
+.status.enproceso {
+  background-color: #2196F3;
+  color: white;
+}
+
+.status.liquidada {
+  background-color: #9c27b0;
+  color: white;
+}

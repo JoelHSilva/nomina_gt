@@ -2,9 +2,9 @@ const { Sequelize } = require('sequelize');
 
 // Configuración de la conexión a la base de datos MySQL
 const sequelize = new Sequelize({
-  database: 'nomina_guatemalteca',
+  database: 'nomina',
   username: 'root', // Cambiar según tu configuración
-  password: 'canche2003', // Cambiar según tu configuración
+  password: '1234', // Cambiar según tu configuración
   host: 'localhost',
   dialect: 'mysql',
   port: 3306,

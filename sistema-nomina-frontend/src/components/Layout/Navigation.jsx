@@ -20,6 +20,7 @@ function Navigation() {
     { to: '/tipos-viaticos', label: 'Tipos Viáticos' },
     { to: '/destinos-viaticos', label: 'Destinos Viáticos' },
     { to: '/detalles-nomina', label: 'Detalles Nómina' },
+    { to: '/viaticos', label: 'Solicitud Viáticos'},
     // Puedes añadir enlaces a otras partes de viaticos
     // { to: '/solicitudes-viaticos', label: 'Solicitudes Viáticos' },
 

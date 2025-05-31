@@ -1,0 +1,114 @@
+/* src/pages/modviaticos/styles/AnticipoModal.css */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.anticipo-modal {
+  background-color: white;
+  border-radius: 8px;
+  padding: 25px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.anticipo-modal h2 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.anticipo-modal p {
+  color: #7f8c8d;
+  margin-bottom: 5px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #7f8c8d;
+}
+
+.close-btn:hover {
+  color: #e74c3c;
+}
+
+.error {
+  color: #e74c3c;
+  background-color: #fdecea;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 15px 0;
+  border-left: 4px solid #e74c3c;
+}
+
+.anticipo-modal form {
+  margin-top: 20px;
+}
+
+.anticipo-modal .form-group {
+  margin-bottom: 15px;
+}
+
+.anticipo-modal .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #34495e;
+}
+
+.anticipo-modal .form-group input,
+.anticipo-modal .form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.anticipo-modal .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.anticipo-modal .form-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.anticipo-modal .form-actions button[type="submit"] {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.anticipo-modal .form-actions button[type="submit"]:hover {
+  background-color: #27ae60;
+}
+
+.anticipo-modal .form-actions button[type="button"] {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.anticipo-modal .form-actions button[type="button"]:hover {
+  background-color: #7f8c8d;
+}

@@ -33,6 +33,7 @@ const usuariosRoutes = require('./routes/usuarios.routes');
 const vacacionesRoutes = require('./routes/vacaciones.routes');
 const liquidacionesRoutes = require('./routes/liquidaciones.routes');
 const liquidacionesDetalleRoutes = require('./routes/liquidacionesDetalle.routes');
+const modViaticosRoutes = require('./routes/modViaticos.routes');
 
 const app = express();
 
@@ -74,6 +75,7 @@ app.use(`${apiPrefix}/usuarios`, usuariosRoutes);
 app.use(`${apiPrefix}/vacaciones`, vacacionesRoutes);
 app.use(`${apiPrefix}/liquidaciones`, liquidacionesRoutes);
 app.use(`${apiPrefix}/liquidaciones-detalle`, liquidacionesDetalleRoutes);
+app.use(`${apiPrefix}/viaticos`, modViaticosRoutes);
 
 // Manejador de errores
 app.use((err, req, res, next) => {
